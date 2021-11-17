@@ -6,16 +6,17 @@ from playergroup import FreeAgentPlayerGroup
 from players import FREE_AGENTS, retrieve_player_data
 from schedule import SCHEDULE, NOW
 
-def determine_day_range(week: str="This Week") -> None:
+
+def determine_day_range(week: str = "This Week") -> None:
     global CUR_DAY_OF_WEEK
     global DAY_COLUMNS
     global NUM_DAYS_REMAIN
-    
+
     if week == "This Week":
         CUR_DAY_OF_WEEK = NOW.dayofweek
     else:
         CUR_DAY_OF_WEEK = 0
-    DAY_COLUMNS = [n for n in range(0,7) if n >= CUR_DAY_OF_WEEK]
+    DAY_COLUMNS = [n for n in range(0, 7) if n >= CUR_DAY_OF_WEEK]
     NUM_DAYS_REMAIN = 7 - CUR_DAY_OF_WEEK
 
 
@@ -23,11 +24,11 @@ def build_dataframe(week: str) -> DataFrame:
     """Function to build dataframe with free agents, points, and gamedays"""
     free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
     stats = retrieve_player_data(free_agents.players)
-    stats = stats[["Player", "Team", "Status", "Score"]].loc[
-        stats["Status"] != "OUT"
-    ]
+    stats = stats[["Player", "Team", "Status", "Score"]].loc[stats["Status"] != "OUT"]
     daily_schedule = SCHEDULE.teams_playing_per_day(week=week, pretty=False)
-    dataframe = stats.merge(daily_schedule, how="left", left_on="Team", right_index=True)
+    dataframe = stats.merge(
+        daily_schedule, how="left", left_on="Team", right_index=True
+    )
     return dataframe
 
 
@@ -50,8 +51,14 @@ def drop_strictly_worse_players(dataframe: DataFrame, max_slots: int = 3) -> Dat
     return rebuilt_dataframe
 
 
+def convert_to_ones(dataframe: DataFrame) -> DataFrame:
+    for col in dataframe:
+        dataframe[col] = [0 if i == 0 else 1 for i in dataframe[col]]
+    return dataframe
+
 def calculate_points_per_day(dataframe: DataFrame) -> DataFrame:
     """Function to convert the binary to points per day"""
+    dataframe[DAY_COLUMNS] = convert_to_ones(dataframe[DAY_COLUMNS])
     for day in DAY_COLUMNS:
         dataframe[day] = dataframe[day] * dataframe["Score"]
         dataframe[day] = dataframe[day].astype("float")
@@ -69,7 +76,7 @@ def check_number_of_trades_sequence(solution: Tuple[int], max_trades: int) -> bo
     count = 1
     while not count > max_trades:
         for day in range(1, NUM_DAYS_REMAIN):
-            if solution[day] != solution[day-1]:
+            if solution[day] != solution[day - 1]:
                 count += 1
         break
     if count > max_trades:
@@ -145,15 +152,20 @@ def streaming_options_results(
     """Function to print the best streaming options"""
     weekdays = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"][CUR_DAY_OF_WEEK:]
     print(f"Possible solutions checked: {legal_solutions_checked}")
-    
+
     results = dict()
-    streaming_solution = DataFrame()
+
     count = 0
 
     for solution, points in best_solution_players_dictionary.items():
+        streaming_solution = DataFrame()
         # Find the names of players based on their index
-        solution_players: List[str] = [dataframe.loc[index, "Player"] for index in solution]
-        solution_players_points: List[str] = [dataframe.loc[index, d] for d, index in zip(DAY_COLUMNS, solution)]
+        solution_players: List[str] = [
+            dataframe.loc[index, "Player"] for index in solution
+        ]
+        solution_players_points: List[str] = [
+            dataframe.loc[index, d] for d, index in zip(DAY_COLUMNS, solution)
+        ]
         # Points of players for the correct day
         streaming_solution["Day"] = weekdays
         streaming_solution["Player"] = solution_players
@@ -163,7 +175,6 @@ def streaming_options_results(
         results[count] = streaming_solution
         count += 1
     return results
-        
 
     # for solution, points in best_solution_players_dictionary.items():
     #     # Find the names of players based on their index
@@ -179,15 +190,17 @@ def streaming_options_results(
     #     # print()
 
 
-def brute_force(dataframe: DataFrame, max_trades: int, week: str): # -> Dict[tuple, float]
+def brute_force(
+    dataframe: DataFrame, max_trades: int, week: str
+):  # -> Dict[tuple, float]
     print(f"Brute forcing all combinations...")
-    columns = ["Player"]+DAY_COLUMNS
+    columns = ["Player"] + DAY_COLUMNS
     dataframe = dataframe[columns]
     solution_dictionary = dict()
     legal_solutions_checked = 0
     indexes = dataframe.index
     combinations = list(combinations_with_replacement(indexes, NUM_DAYS_REMAIN))
-    
+
     for combo in combinations:
         assert len(DAY_COLUMNS) == len(combo)
         legal = evaluate_solution(solution=combo, max_trades=max_trades)
@@ -200,22 +213,42 @@ def brute_force(dataframe: DataFrame, max_trades: int, week: str): # -> Dict[tup
                 # Dictionary containing all legal solutions and their points
                 solution_dictionary[combo] = round(points)
     best_solution_dictionary = retrieve_best_solutions(solution_dictionary, 5)
-    solutions = streaming_options_results(dataframe, best_solution_dictionary, week, legal_solutions_checked)
+    solutions = streaming_options_results(
+        dataframe, best_solution_dictionary, week, legal_solutions_checked
+    )
     return solutions
 
 
-def find_optimal_solution(max_slots: int, max_trades: int, week: str):
+def prep_dataframe(max_slots: int, week: str):
     """Generates global variables"""
     determine_day_range(week=week)
 
-    """Main function to find optimal streaming options"""
     dataframe = build_dataframe(week=week)
     dataframe["GameDayPattern"] = dataframe.apply(lambda x: game_day_pattern(x), axis=1)
     dataframe = drop_strictly_worse_players(dataframe, max_slots=max_slots)
     dataframe = calculate_points_per_day(dataframe)
     dataframe = clean_dataframe_for_operations(dataframe)
+    return dataframe
+
+
+def find_optimal_solution(max_slots: int, max_trades: int, week: str):
+    dataframe = prep_dataframe(max_slots, week)
     bf = brute_force(dataframe, max_trades, week)
     return bf
+
+
+# def find_optimal_solution(max_slots: int, max_trades: int, week: str):
+#     """Generates global variables"""
+#     determine_day_range(week=week)
+#
+#     """Main function to find optimal streaming options"""
+#     dataframe = build_dataframe(week=week)
+#     dataframe["GameDayPattern"] = dataframe.apply(lambda x: game_day_pattern(x), axis=1)
+#     dataframe = drop_strictly_worse_players(dataframe, max_slots=max_slots)
+#     dataframe = calculate_points_per_day(dataframe)
+#     dataframe = clean_dataframe_for_operations(dataframe)
+#     bf = brute_force(dataframe, max_trades, week)
+#     return bf
 
 
 if __name__ == "__main__":

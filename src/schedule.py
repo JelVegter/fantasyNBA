@@ -1,6 +1,7 @@
 """Module containing functions and a class relating to scheduling related information"""
 from typing import List
 import datetime as dt
+import logging
 from pprint import pprint
 from pandas import DataFrame, Timestamp, to_datetime, read_html, offsets, read_csv
 from teams import TEAMS, abbreviate_team
@@ -8,7 +9,8 @@ from league import YEAR
 
 NOW = Timestamp(dt.datetime.now(), unit="s", tz="US/Eastern").normalize()
 CURRENT_WEEK = NOW.isocalendar()[1]
-MONTHS = ["october", "november","december"]
+MONTHS = ["october", "november", "december"]
+
 
 class Schedule:
     """Class containing NBA game schedule information"""
@@ -17,7 +19,7 @@ class Schedule:
         self.year: int = year
         self.months: List[str] = MONTHS
         self.schedule: DataFrame = retrieve_schedule()
-        self.weeks: List[int] = [CURRENT_WEEK,CURRENT_WEEK+1]
+        self.weeks: List[int] = [CURRENT_WEEK, CURRENT_WEEK + 1]
 
     def teams_playing_per_day(
         self, week: str = "This Week", sort: str = "Total", pretty: bool = True
@@ -30,11 +32,11 @@ class Schedule:
             else:
                 week_of_games += 1
         games = teams_games_per_day(week=week_of_games, sort=sort)
-
         if pretty is True:
             weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
-            games[weekdays] = games[weekdays].applymap(lambda x: "X" if x == 1 else "")
+            games[weekdays] = games[weekdays].applymap(
+                lambda x: x if isinstance(x, str) else "") #TODO changed
             games = games.sort_values(by=sort, ascending=False)
             games[["Total", "Today", "Next3Days"]] = games[
                 ["Total", "Today", "Next3Days"]
@@ -105,13 +107,19 @@ def teams_games_per_day(week: int, sort="Total") -> DataFrame:
     for t in TEAMS:
         daily_schedule.at[t, ["Total", "Today", "Next3Days"]] = 0
         team_schedule = schedule.loc[
-            (schedule["Visitor/Neutral"] == t) | (schedule["Home/Neutral"] == t)
+            (schedule["Visitor/Neutral"] ==
+             t) | (schedule["Home/Neutral"] == t)
         ]
         for i in range(0, 7):
             team_schedule_per_day = team_schedule.loc[team_schedule["DayOfWeek"] == i]
             if team_schedule_per_day.shape[0] > 0:
-                daily_schedule.at[t, i] = 1
-                daily_schedule.at[t, "Total"] += 1
+
+                if t == team_schedule_per_day["Home/Neutral"].iloc[0]:
+                    daily_schedule.at[t, i] = "@"+team_schedule_per_day["Visitor/Neutral"].iloc[0]
+                else:
+                    daily_schedule.at[t, i] = team_schedule_per_day["Home/Neutral"].iloc[0]
+                    daily_schedule.at[t, "Total"] += 1
+
                 if i == today_day_of_week:
                     daily_schedule.at[t, "Today"] += 1
                 if i - today_day_of_week <= 2:
@@ -126,7 +134,8 @@ def team_games_week_count(team: str, schedule: DataFrame, week: int, date):
     schedule = schedule.loc[schedule["Date"] >= date]
     schedule = schedule.loc[schedule["Week"] == week]
     schedule = schedule.loc[
-        (schedule["Visitor/Neutral"] == team) | (schedule["Home/Neutral"] == team)
+        (schedule["Visitor/Neutral"] ==
+         team) | (schedule["Home/Neutral"] == team)
     ]
     return schedule.count()[0]
 
@@ -138,7 +147,8 @@ def team_games_days_count(team: str, schedule: DataFrame, date, days_offset: int
         & (schedule["Date"] <= date + offsets.Day(days_offset))
     ]
     schedule = schedule.loc[
-        (schedule["Visitor/Neutral"] == team) | (schedule["Home/Neutral"] == team)
+        (schedule["Visitor/Neutral"] ==
+         team) | (schedule["Home/Neutral"] == team)
     ]
     return schedule.count()[0]
 
@@ -157,8 +167,10 @@ def team_games_to_play(teams: List[str]) -> DataFrame:
         team_games.at[count, "Next Week"] = team_games_week_count(
             t, game_dates, weeks[1], NOW
         )
-        team_games.at[count, "Today"] = team_games_days_count(t, game_dates, NOW, 0)
-        team_games.at[count, "Next3Days"] = team_games_days_count(t, game_dates, NOW, 2)
+        team_games.at[count, "Today"] = team_games_days_count(
+            t, game_dates, NOW, 0)
+        team_games.at[count, "Next3Days"] = team_games_days_count(
+            t, game_dates, NOW, 2)
         count += 1
     for c in team_games.columns:
         try:
@@ -175,10 +187,10 @@ def main() -> None:
     # print(SCHEDULE.year)
     # print(SCHEDULE.months)
     # print(SCHEDULE.weeks)
-    print(SCHEDULE.schedule)
+    # print(SCHEDULE.schedule)
     pprint(SCHEDULE.teams_playing_per_day("This Week", pretty=True))
     # pprint(retrieve_schedule())
-    retrieve_schedule()
+    # retrieve_schedule()
 
 
 if __name__ == "__main__":
