@@ -92,11 +92,11 @@ def table_free_agents(
         player_stats.style.format(
             {
                 "Score": "{:.1f}",
-                "Fs.2022.avg": "{:.1f}",
-                "Fs.2022.total": "{:.1f}",
-                "Proj.2022.avg": "{:.1f}",
-                "Proj.2022.total": "{:.1f}",
-                "30_d.2022.avg": "{:.1f}",
+                "total_2022.avg": "{:.1f}",
+                "total_2022.total": "{:.1f}",
+                "projected_total_2022.avg": "{:.1f}",
+                "projected_total_2022.total": "{:.1f}",
+                "last_30_2022.avg": "{:.1f}",
                 "Pot.3Days": "{:.1f}",
                 "Pot.Week": "{:.1f}",
                 "Pot.NextWeek": "{:.1f}",
@@ -138,11 +138,11 @@ def table_roster(
         roster_stats.style.format(
             {
                 "Score": "{:.1f}",
-                "Fs.2022.avg": "{:.1f}",
-                "Fs.2022.total": "{:.1f}",
-                "Proj.2022.avg": "{:.1f}",
-                "Proj.2022.total": "{:.1f}",
-                "30_d.2022.avg": "{:.1f}",
+                "total_2022.avg": "{:.1f}",
+                "total_2022.total": "{:.1f}",
+                "projected_total_2022.avg": "{:.1f}",
+                "projected_total_2022.total": "{:.1f}",
+                "last_30_2022.avg": "{:.1f}",
                 "Pot.3Days": "{:.1f}",
                 "Pot.Week": "{:.1f}",
                 "Pot.NextWeek": "{:.1f}",

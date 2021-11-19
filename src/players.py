@@ -54,11 +54,11 @@ def convert_score_columns_headers(column_header):
 def calculate_weighted_score(scores: DataFrame) -> float:
     """Function to calculated a weighted score"""
     weights = {
-        "Proj.2022.avg": 20,
-        "Fs.2022.avg": 20,
-        "7_d.2022.avg": 20,
-        "15_d.2022.avg": 15,
-        "30_d.2022.avg": 10,
+        "projected_total_2022.avg": 20,
+        "total_2022.avg": 20,
+        "last_7_2022.avg": 20,
+        "last_15_2022.avg": 15,
+        "last_30_2022.avg": 10,
     }
     weight_counter = 0
     score_counter = 0
@@ -77,31 +77,28 @@ def player_scores(players: List[Player]) -> DataFrame:
     scores_dict = dict()
     for fa in players:
         stats_dict = fa.stats
-        print(stats_dict.keys())
         temp_dict = dict()
         for period, scores in stats_dict.items():
             for avg_total, scores_ in scores.items():
                 try:
-                    stat_type = convert_score_columns_headers(period)
-                    print(0)
-                    temp_dict[stat_type + "." + avg_total] = calculate_points(scores_)
-                    print(1)
+                    temp_dict[period] = calculate_points(scores_)
+                    temp_dict[period + "." + avg_total] = calculate_points(scores_)
                 except:
                     pass
         scores_dict[fa.name] = temp_dict
-    print(scores_dict) #TODO
     scores = DataFrame.from_dict(scores_dict, orient="index")
     scores.reset_index(inplace=True, drop=False)
     scores = scores.rename(columns={"index": "Player"})
+
     scores["Score"] = scores.apply(lambda x: calculate_weighted_score(x), axis=1)
     columns_to_keep = [
         "Player",
         "Score",
-        "Fs.2022.avg",
-        "Fs.2022.total",
-        "Proj.2022.avg",
-        "Proj.2022.total",
-        "30_d.2022.avg",
+        "total_2022.avg",
+        "total_2022.total",
+        "projected_total_2022.avg",
+        "projected_total_2022.total",
+        "last_30_2022.avg"
     ]
     return scores[columns_to_keep]
 
