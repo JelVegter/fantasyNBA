@@ -3,7 +3,7 @@ from typing import List
 from pandas import DataFrame
 from espn_api.basketball import Player
 from league import league
-
+from pprint import pprint
 
 def refresh_free_agents(size: int):
     return league.free_agents(size=size)
@@ -77,16 +77,19 @@ def player_scores(players: List[Player]) -> DataFrame:
     scores_dict = dict()
     for fa in players:
         stats_dict = fa.stats
+        print(stats_dict.keys())
         temp_dict = dict()
         for period, scores in stats_dict.items():
             for avg_total, scores_ in scores.items():
                 try:
                     stat_type = convert_score_columns_headers(period)
+                    print(0)
                     temp_dict[stat_type + "." + avg_total] = calculate_points(scores_)
+                    print(1)
                 except:
                     pass
         scores_dict[fa.name] = temp_dict
-
+    print(scores_dict) #TODO
     scores = DataFrame.from_dict(scores_dict, orient="index")
     scores.reset_index(inplace=True, drop=False)
     scores = scores.rename(columns={"index": "Player"})
@@ -130,7 +133,7 @@ def retrieve_player_data(players: List[Player]) -> DataFrame:
 
 def main():
     """Main function for testing"""
-    print(retrieve_free_agents())
+    # print(retrieve_free_agents())
     players = league.teams[2].roster
     print(retrieve_player_data(players))
 

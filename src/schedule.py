@@ -1,7 +1,6 @@
 """Module containing functions and a class relating to scheduling related information"""
 from typing import List
 import datetime as dt
-import logging
 from pprint import pprint
 from pandas import DataFrame, Timestamp, to_datetime, read_html, offsets, read_csv
 from teams import TEAMS, abbreviate_team
@@ -183,15 +182,15 @@ def team_games_to_play(teams: List[str]) -> DataFrame:
 SCHEDULE = Schedule(YEAR)
 
 
-def main() -> None:
-    # print(SCHEDULE.year)
-    # print(SCHEDULE.months)
-    # print(SCHEDULE.weeks)
-    # print(SCHEDULE.schedule)
-    pprint(SCHEDULE.teams_playing_per_day("This Week", pretty=True))
-    # pprint(retrieve_schedule())
-    # retrieve_schedule()
-
-
-if __name__ == "__main__":
-    main()
+# def main() -> None:
+#     # print(SCHEDULE.year)
+#     # print(SCHEDULE.months)
+#     # print(SCHEDULE.weeks)
+#     # print(SCHEDULE.schedule)
+#     pprint(SCHEDULE.teams_playing_per_day("This Week", pretty=True))
+#     # pprint(retrieve_schedule())
+#     # retrieve_schedule()
+#
+#
+# if __name__ == "__main__":
+#     main()

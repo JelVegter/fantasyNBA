@@ -146,5 +146,5 @@ def main():
     # free_agents.show_free_agents(sort='Score', hide_injured=False)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

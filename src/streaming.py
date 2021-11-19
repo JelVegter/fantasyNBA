@@ -250,7 +250,7 @@ def find_optimal_solution(max_slots: int, max_trades: int, week: str):
 #     bf = brute_force(dataframe, max_trades, week)
 #     return bf
 
-
-if __name__ == "__main__":
-    find_optimal_solution(max_slots=2, max_trades=4, week="This Week")
+#
+# if __name__ == "__main__":
+#     find_optimal_solution(max_slots=2, max_trades=4, week="This Week")
     # find_optimal_solution(max_slots=1, max_trades=3, week="NextWeek")
