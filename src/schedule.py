@@ -178,7 +178,7 @@ def teams_games_per_day(week: int, sort="Total") -> DataFrame:
                     daily_schedule.at[t, i] = team_schedule_per_day[
                         "Home/Neutral"
                     ].iloc[0]
-                    daily_schedule.at[t, "Total"] += 1
+                daily_schedule.at[t, "Total"] += 1
 
                 if i == today_day_of_week:
                     daily_schedule.at[t, "Today"] += 1
