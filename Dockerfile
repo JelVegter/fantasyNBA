@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.9
 
 WORKDIR /app
 
@@ -7,6 +7,10 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8501
 
-COPY . .
+# VOLUME C:\\Users\\vegterj\\Documents\\Git\\streamlit-nba-fantasy
+
+# COPY . .
 
 CMD ["streamlit", "run", "src/main.py"]
+
+# docker run -it -d -v "${pwd}":/app .

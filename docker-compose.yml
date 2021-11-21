@@ -1,0 +1,9 @@
+version: "3.9" # optional since v1.27.0
+services:
+  python:
+    build: .
+    container_name: streamlit-nba-fantasy
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
