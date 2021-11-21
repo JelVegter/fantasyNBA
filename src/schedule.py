@@ -67,21 +67,6 @@ def time_func(func):
     return wrapper
 
 
-# def get_tasks(session, year: int, months: list, url: str):
-#     tasks = []
-#     for month in months:
-#         tasks.append(session.get(url.format(year, month.lower()), ssl=False))
-#     return tasks
-#
-#
-# async def get_api_data(year: int, months: list):
-#     url = "https://www.basketball-reference.com/leagues/NBA_{}_games-{}.html"
-#     async with aiohttp.ClientSession() as session:
-#         tasks = get_tasks(session, year, months, url)
-#         responses = await asyncio.gather(*tasks)
-#     return responses
-
-
 async def fetch(session, url: str):
     async with session.get(url, ssl=False) as response:
         data = await response.read()
@@ -103,7 +88,6 @@ def schedule_builder(year: int, months: list) -> DataFrame:
     responses = asyncio.run(fetch_api_data(year, months))
     data = [read_html(r)[0] for r in responses]
     games = concat(data)
-
     games = games.reset_index()
     games = games[["Date", "Start (ET)", "Visitor/Neutral", "Home/Neutral"]]
     games["Date"] = to_datetime(games["Date"], errors="coerce").dt.tz_localize(
@@ -114,36 +98,6 @@ def schedule_builder(year: int, months: list) -> DataFrame:
     games["Visitor/Neutral"] = games["Visitor/Neutral"].map(abbreviate_team)
     games["Home/Neutral"] = games["Home/Neutral"].map(abbreviate_team)
     return games
-
-
-# def schedule_builder(year: int, months: list) -> DataFrame:
-#     """Function to create the NBA schedule by scraping data from basketball-reference.com"""
-#     first = True
-#     games = DataFrame()
-#     for month in months:
-#         try:
-#             schedule = read_html(
-#                 f"https://www.basketball-reference.com/leagues/NBA_{year}_games-{month.lower()}.html"
-#             )
-#             if first:
-#                 games = schedule[0]
-#                 first = False
-#             else:
-#                 games = games.append(schedule[0])
-#         except Exception as error:
-#             print(f"schedule_builder.Error extracting data for {year},{month}")
-#             print(error)
-#
-#     games = games.reset_index()
-#     games = games[["Date", "Start (ET)", "Visitor/Neutral", "Home/Neutral"]]
-#     games["Date"] = to_datetime(games["Date"], errors="coerce").dt.tz_localize(
-#         tz="US/Eastern"
-#     )
-#     games["Week"] = games["Date"].dt.isocalendar().week
-#     games = games.loc[games["Week"] >= CURRENT_WEEK]
-#     games["Visitor/Neutral"] = games["Visitor/Neutral"].map(abbreviate_team)
-#     games["Home/Neutral"] = games["Home/Neutral"].map(abbreviate_team)
-#     return games
 
 
 def convert_timestamp_to_datetime(timestamp: Timestamp):
