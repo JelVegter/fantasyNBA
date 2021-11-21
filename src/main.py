@@ -1,11 +1,12 @@
 import streamlit as st
 from pages.multipage import MultiPage
-from pages import (
+from src.pages import (
     page_free_agents,
     page_schedule,
     page_matchup_comparison,
     page_streaming,
 )
+
 
 def main():
     st.set_page_config(  # Alternate names: setup_page, page, layout
@@ -14,7 +15,6 @@ def main():
         page_title=None,  # String or None. Strings get appended with "• Streamlit".
         page_icon=None,  # String, anything supported by st.image, or None.
     )
-
 
     # ---------------------------------------------#
     # ---------------  DEFINE PAGES ---------------#
@@ -28,5 +28,5 @@ def main():
     app.run()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

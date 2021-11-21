@@ -3,6 +3,7 @@ from typing import List
 import datetime as dt
 import asyncio
 import aiohttp
+import requests
 from timeit import default_timer
 from pandas import (
     DataFrame,
@@ -12,8 +13,8 @@ from pandas import (
     concat,
     offsets,
 )
-from teams import TEAMS, abbreviate_team
-from league import YEAR
+from src.teams import TEAMS, abbreviate_team
+from src.league import YEAR
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -34,16 +35,21 @@ class Schedule:
         self.weeks: List[int] = [CURRENT_WEEK, CURRENT_WEEK + 1]
 
     def teams_playing_per_day(
-        self, week: str = "This Week", sort: str = "Total", pretty: bool = True
+        self,
+        schedule: DataFrame = None,
+        week: str = "This Week",
+        sort: str = "Total",
+        pretty: bool = True,
     ) -> DataFrame:
         """Method to print the schedule in a daily view"""
+        schedule = self.schedule
         week_of_games = CURRENT_WEEK
         if week == "Next Week":
             if week_of_games == 52:
                 week_of_games = 1
             else:
                 week_of_games += 1
-        games = teams_games_per_day(week=week_of_games, sort=sort)
+        games = teams_games_per_day(schedule=schedule, week=week_of_games, sort=sort)
         if pretty is True:
             weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
@@ -60,9 +66,10 @@ class Schedule:
 def time_func(func):
     def wrapper(*args, **kwargs):
         start = default_timer()
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         end = default_timer()
         print(end - start)
+        return result
 
     return wrapper
 
@@ -73,28 +80,32 @@ async def fetch(session, url: str):
         return data
 
 
-async def fetch_api_data(year: int, months: list):
-    url = "https://www.basketball-reference.com/leagues/NBA_{}_games-{}.html"
+async def fetch_api_data(urls: list) -> tuple:
+    print("Fetching api data...")
     async with aiohttp.ClientSession() as session:
         tasks = []
-        for month in months:
-            tasks.append(fetch(session, url.format(year, month.lower())))
-        responses = await asyncio.gather(*tasks, return_exceptions=False)
+        for url in urls:
+            tasks.append(fetch(session, url))
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
     return responses
 
 
+@time_func
 def schedule_builder(year: int, months: list) -> DataFrame:
     """Function to create the NBA schedule by scraping data from basketball-reference.com"""
-    responses = asyncio.run(fetch_api_data(year, months))
+    base_url = "https://www.basketball-reference.com/leagues/NBA_{}_games-{}.html"
+    urls = [base_url.format(year, month) for month in months]
+    responses = asyncio.run(fetch_api_data(urls))
     data = [read_html(r)[0] for r in responses]
     games = concat(data)
+
     games = games.reset_index()
     games = games[["Date", "Start (ET)", "Visitor/Neutral", "Home/Neutral"]]
     games["Date"] = to_datetime(games["Date"], errors="coerce").dt.tz_localize(
         tz="US/Eastern"
     )
     games["Week"] = games["Date"].dt.isocalendar().week
-    games = games.loc[games["Week"] >= CURRENT_WEEK]
+    # games = games.loc[games["Week"] >= CURRENT_WEEK]
     games["Visitor/Neutral"] = games["Visitor/Neutral"].map(abbreviate_team)
     games["Home/Neutral"] = games["Home/Neutral"].map(abbreviate_team)
     return games
@@ -105,9 +116,8 @@ def convert_timestamp_to_datetime(timestamp: Timestamp):
     return to_datetime(timestamp)
 
 
-def teams_games_per_day(week: int, sort="Total") -> DataFrame:
+def teams_games_per_day(schedule: DataFrame, week: int, sort="Total") -> DataFrame:
     """Function to create a per-day overview of which teams are playing"""
-    schedule = SCHEDULE.schedule
     today_day_of_week = NOW.dayofweek
     schedule = schedule.loc[schedule["Date"] >= NOW]
     schedule = schedule.loc[schedule["Week"] == week]
@@ -190,10 +200,8 @@ def team_games_to_play(teams: List[str]) -> DataFrame:
     return team_games
 
 
-SCHEDULE = Schedule(YEAR)
-
-
 def main() -> None:
+    # SCHEDULE = Schedule(YEAR)
     # print(SCHEDULE.year)
     # print(SCHEDULE.months)
     # print(SCHEDULE.weeks)
@@ -202,8 +210,9 @@ def main() -> None:
     # pprint(retrieve_schedule())
     # retrieve_schedule()
     # test_func()
-    results = schedule_builder(year=2022, months=MONTHS)
-    print(results)
+    results = schedule_builder(year=2022, months=["october"])
+    pass
+    # print(results)
 
 
 if __name__ == "__main__":

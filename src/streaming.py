@@ -2,9 +2,11 @@ from itertools import combinations_with_replacement
 from typing import List, Tuple, Dict
 from collections import Counter
 from pandas import DataFrame, concat
-from playergroup import FreeAgentPlayerGroup
-from players import FREE_AGENTS, retrieve_player_data
-from schedule import SCHEDULE, NOW
+from src.playergroup import FreeAgentPlayerGroup
+from src.players import FREE_AGENTS, retrieve_player_data
+from src.schedule import Schedule, NOW
+
+SCHEDULE = Schedule(2022)
 
 
 def determine_day_range(week: str = "This Week") -> None:
@@ -55,6 +57,7 @@ def convert_to_ones(dataframe: DataFrame) -> DataFrame:
     for col in dataframe:
         dataframe[col] = [0 if i == 0 else 1 for i in dataframe[col]]
     return dataframe
+
 
 def calculate_points_per_day(dataframe: DataFrame) -> DataFrame:
     """Function to convert the binary to points per day"""
@@ -253,4 +256,4 @@ def find_optimal_solution(max_slots: int, max_trades: int, week: str):
 #
 # if __name__ == "__main__":
 #     find_optimal_solution(max_slots=2, max_trades=4, week="This Week")
-    # find_optimal_solution(max_slots=1, max_trades=3, week="NextWeek")
+# find_optimal_solution(max_slots=1, max_trades=3, week="NextWeek")

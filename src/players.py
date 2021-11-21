@@ -2,11 +2,12 @@
 from typing import List
 from pandas import DataFrame
 from espn_api.basketball import Player
-from league import league
-from pprint import pprint
+from src.league import league
+
 
 def refresh_free_agents(size: int):
     return league.free_agents(size=size)
+
 
 FREE_AGENTS = refresh_free_agents(100)
 
@@ -51,15 +52,8 @@ def convert_score_columns_headers(column_header):
     return "".join(stat_type + "." + year)
 
 
-def calculate_weighted_score(scores: DataFrame) -> float:
+def calculate_weighted_score(weights: dict, scores: DataFrame) -> float:
     """Function to calculated a weighted score"""
-    weights = {
-        "projected_total_2022.avg": 20,
-        "total_2022.avg": 20,
-        "last_7_2022.avg": 20,
-        "last_15_2022.avg": 15,
-        "last_30_2022.avg": 10,
-    }
     weight_counter = 0
     score_counter = 0
     for key, value in weights.items():
@@ -72,7 +66,18 @@ def calculate_weighted_score(scores: DataFrame) -> float:
         return 0.00
 
 
-def player_scores(players: List[Player]) -> DataFrame:
+def score_weights():
+    weights = {
+        "projected_total_2022.avg": 20,
+        "total_2022.avg": 20,
+        "last_7_2022.avg": 20,
+        "last_15_2022.avg": 15,
+        "last_30_2022.avg": 10,
+    }
+    return weights
+
+
+def player_scores(players: List[Player], weights: dict) -> DataFrame:
     """Function to calculate scores for some players"""
     scores_dict = dict()
     for fa in players:
@@ -90,7 +95,9 @@ def player_scores(players: List[Player]) -> DataFrame:
     scores.reset_index(inplace=True, drop=False)
     scores = scores.rename(columns={"index": "Player"})
 
-    scores["Score"] = scores.apply(lambda x: calculate_weighted_score(x), axis=1)
+    scores["Score"] = scores.apply(
+        lambda x: calculate_weighted_score(weights, x), axis=1
+    )
     columns_to_keep = [
         "Player",
         "Score",
@@ -98,7 +105,7 @@ def player_scores(players: List[Player]) -> DataFrame:
         "total_2022.total",
         "projected_total_2022.avg",
         "projected_total_2022.total",
-        "last_30_2022.avg"
+        "last_30_2022.avg",
     ]
     return scores[columns_to_keep]
 
@@ -122,7 +129,8 @@ def player_info(players: List[Player]) -> DataFrame:
 
 def retrieve_player_data(players: List[Player]) -> DataFrame:
     """Function to retrieve scores and info of players are combine these"""
-    scores = player_scores(players)
+    weights = score_weights()
+    scores = player_scores(players, weights)
     info = player_info(players)
     data = info.merge(scores, how="outer", on="Player")
     return data

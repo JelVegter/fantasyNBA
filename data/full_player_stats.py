@@ -1,9 +1,18 @@
 from datetime import datetime
+import asyncio
+import aiohttp
+from pprint import pprint
+from timeit import default_timer
 from typing import List
 from dateutil import parser
 import pandas as pd
 from numpy import nan
+from pandas.core.frame import DataFrame
 
+try:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+except:
+    pass
 
 basketball_reference_abbreviations = {
     "Atlanta Hawks": "ATL",
@@ -38,7 +47,6 @@ basketball_reference_abbreviations = {
     "Washington Wizards": "WAS",
 }
 MONTHS = ["october", "november", "december"]
-# MONTHS = ["november"]
 
 
 def find_abbreviation(team: str) -> str:
@@ -61,52 +69,86 @@ def gen_url(row) -> str:
     return url
 
 
-def scrape_stats(played_games: pd.DataFrame) -> pd.DataFrame:
-    all_stats = pd.DataFrame()
-    for index, row in played_games.iterrows():
-        try:
-            url = row["url"]
-            away_team = pd.read_html(url)[0]
-            minutes_played = int(away_team[("Basic Box Score Stats", "MP")].iloc[-1])
+def time_func(func):
+    def wrapper(*args, **kwargs):
+        start = default_timer()
+        result = func(*args, **kwargs)
+        end = default_timer()
+        print(end - start)
+        return result
 
-            # Overtime changes the index of score table
-            overtime = (minutes_played - 240) / 25
-            table_html_index = int(8 + overtime)
-            home_team = pd.read_html(url)[table_html_index]
-            away_team["GameDay"] = row["Date"]
-            home_team["GameDay"] = row["Date"]
-            all_stats = pd.concat([all_stats, home_team])
-            all_stats = pd.concat([all_stats, away_team])
-            print(f"Added data from: {url}")
-        except:
-            print(f"Failed to retrieve data: {url}")
+    return wrapper
+
+
+async def fetch(session, url: str):
+    async with session.get(url, ssl=False) as response:
+        data = await response.read()
+        return data
+
+
+async def fetch_api_data(urls: list) -> tuple:
+    print("Fetching api data...")
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in urls:
+            tasks.append(fetch(session, url))
+        responses = await asyncio.gather(*tasks, return_exceptions=False)
+    return responses
+
+
+def fetch_played_games(months: List[str]) -> DataFrame:
+    print("Fetching played games...")
+    base_url = "https://www.basketball-reference.com/leagues/NBA_2022_games-{}.html"
+    urls = [base_url.format(month) for month in months]
+    responses = asyncio.run(fetch_api_data(urls))
+    games = pd.concat([pd.read_html(r)[0] for r in responses])
+    games = games.loc[games["Attend."] > 0]
+    games["AbbrHomeTeam"] = games["Home/Neutral"].map(find_abbreviation)
+    games["DateStr"] = games["Date"].map(convert_date)
+    games["url"] = games.apply(gen_url, axis=1)
+    return games
+
+
+def fetch_all_stats(urls: List[str], dates: list):
+    responses = asyncio.run(fetch_api_data(urls))
+    reponses_and_dates = zip(dates, responses)
+    tables = []
+    counter = 0
+    for date, response in reponses_and_dates:
+        tables.append(parse_html_tables(response, date))
+        counter += 1
+        if counter % 10 == 0:
+            print(f"Parsed {counter} of out {len(responses)} responses")
+    all_stats = pd.concat(tables)
+    all_stats.reset_index(inplace=True, drop=True)
     return all_stats
 
 
+def parse_html_tables(html: str, date) -> pd.DataFrame:
+    away_team = pd.read_html(html)[0]
+    minutes_played = away_team[("Basic Box Score Stats", "MP")].iloc[-1]
+    minutes_played = int(minutes_played)
+    nr_overtimes = (minutes_played - 240) / 25
+    table_html_index = int(8 + nr_overtimes)
+    home_team = pd.read_html(html)[table_html_index]
+    stats = pd.concat([away_team, home_team])
+    stats["GameDay"] = date
+    return stats
+
+
+@time_func
 def get_all_stats(months: List[str]) -> pd.DataFrame:
-    all_stats = pd.DataFrame()
-    for month in months:
-        try:
-            played_games = pd.read_html(
-                f"https://www.basketball-reference.com/leagues/NBA_2022_games-{month}.html"
-            )[0]
-            played_games = played_games.loc[played_games["Attend."] > 0]
-            played_games["AbbrHomeTeam"] = played_games["Home/Neutral"].map(
-                find_abbreviation
-            )
-            played_games["DateStr"] = played_games["Date"].map(convert_date)
-            played_games["url"] = played_games.apply(gen_url, axis=1)
-            monthly_stats = scrape_stats(played_games)
-            all_stats = pd.concat([all_stats, monthly_stats])
-        except:
-            print(f"Failed to retrieve data for {month}")
-    return all_stats
+    print("Getting all stats...")
+    played_games = fetch_played_games(months)
+    urls = played_games["url"].to_list()
+    dates = played_games["Date"].to_list()
+    stats = fetch_all_stats(urls, dates)
+    return stats
 
 
 def clean_all_stats(all_stats: pd.DataFrame) -> pd.DataFrame:
     """Function to cleanup dataframe"""
-
-    # Rename columns and drop non-data columns
+    print("Cleaning stats...")
     cols = [
         "Player",
         "MP",
@@ -263,9 +305,11 @@ def calculate_points(
 
 
 def main() -> None:
-    data = get_dataframe(refresh=False)
-    data = calculate_points(data, roll_backwards=[1, 2], roll_forward=[1, 3])
-    # print(data.loc[data["Player"] == "Joe Harris"])
+    data = get_dataframe(refresh=True)
+    data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
+    pprint(data.loc[data["Player"] == "Joe Harris"])
+    # responses = get_all_stats(["november"])
+    # print(responses)
 
 
 if __name__ == "__main__":
