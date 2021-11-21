@@ -1,7 +1,4 @@
-from playergroup import (
-    OtherPlayerGroup,
-    FreeAgentPlayerGroup
-)
+from playergroup import OtherPlayerGroup, FreeAgentPlayerGroup
 from players import FREE_AGENTS
 from teams import TEAMS
 from schedule import Schedule
@@ -36,7 +33,7 @@ def highlight_teams_playing(value):
 
 
 def table_free_agents(
-    INJURED_PLAYERS: str,
+    INJURED_PLAYERS: bool,
     SHOW_PLAYERS: int,
     SEARCHED_PLAYER,
     SEARCHED_TEAMS: str,
@@ -111,9 +108,7 @@ def table_free_agents(
 
 
 def table_roster(
-    SELECTED_TEAM: OtherPlayerGroup,
-    small: bool = False,
-    hide_injured: bool = True
+    SELECTED_TEAM: OtherPlayerGroup, small: bool = False, hide_injured: bool = True
 ) -> DataFrame:
 
     other_roster = OtherPlayerGroup(team=SELECTED_TEAM)

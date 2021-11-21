@@ -7,7 +7,6 @@ from league import league
 from players import FREE_AGENTS, retrieve_player_data, Player
 
 
-# Do I need to add this to the main PlayerGroup class?
 def choose_team() -> Optional[int]:
     """Function to make team selection"""
     for option, team in enumerate(league.teams):
@@ -17,19 +16,6 @@ def choose_team() -> Optional[int]:
         print("Error, invalid choice")
         choose_team()
     return choice
-
-
-# def retrieve_stats(players: List[Player], sort: str='projected.2022.total', free_agents: bool=False, hide_injured: bool=False) -> DataFrame:
-#     """Method to retrieve stats for a group of players"""
-#     stats = retrieve_player_data(players).sort_values(by=sort, ascending=False)
-#     games = team_games_to_play(TEAMS)
-#     stats_and_games = stats.merge(games, how='left', on='Team')
-#     stats_and_games['Pot.Week'] = stats_and_games['Score'] * stats_and_games['ThisWeek']
-#     stats_and_games['Pot.NextWeek'] = stats_and_games['Score'] * stats_and_games['NextWeek']
-#     if hide_injured:
-#         stats_and_games = stats_and_games.loc[stats_and_games['Status'] != 'OUT']
-#     stats_and_games.reset_index(inplace=True, drop=True)
-#     return stats_and_games
 
 
 class PlayerGroup:
@@ -92,7 +78,7 @@ class PlayerGroup:
 class MyPlayerGroup(PlayerGroup):
     """Class containing a group of players specifically my roster"""
 
-    def __init__(self, my_team_number: int, team) -> None:
+    def __init__(self, team) -> None:
         self.team = team
         self.players = self.team.roster
 
@@ -102,7 +88,6 @@ class OtherPlayerGroup(PlayerGroup):
 
     def __init__(self, team) -> None:
         self.team = team
-        # self.team = league.teams[choice]
         self.players = self.team.roster
 
 
@@ -125,7 +110,7 @@ def main():
     # Create a schedule to test
 
     # Test MyPlayerGroup Child Class
-    my_roster = MyPlayerGroup(my_team_number=2)
+    my_roster = MyPlayerGroup(2)
     # print(my_roster.players)
     print(my_roster.retrieve_stats())
     # print(my_roster.estimate_points(period='Pot.Week'))
@@ -133,18 +118,18 @@ def main():
     # my_roster.suggest_trades()
 
     # Test OtherPlayerGroup Child Class -- choose team before class and init with choice
-    choice = choose_team()
-    other_roster = OtherPlayerGroup(choice)
+    # choice = choose_team()
+    # other_roster = OtherPlayerGroup(choice)
     # print(other_roster.team)
     # print(other_roster.players)
     # print(other_roster.retrieve_stats())
     # other_roster.compare_matchup(period='Pot.Week')
-    other_roster.suggest_trades()
+    # other_roster.suggest_trades()
 
     # Test FreeAgentPlayerGroup Child Class
     # free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
     # free_agents.show_free_agents(sort='Score', hide_injured=False)
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

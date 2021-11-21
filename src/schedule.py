@@ -4,12 +4,21 @@ import datetime as dt
 import asyncio
 import aiohttp
 from timeit import default_timer
-from pprint import pprint
-from pandas import DataFrame, Timestamp, to_datetime, read_html, read_csv, concat
+from pandas import (
+    DataFrame,
+    Timestamp,
+    to_datetime,
+    read_html,
+    concat,
+    offsets,
+)
 from teams import TEAMS, abbreviate_team
 from league import YEAR
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+try:
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+except:
+    pass
 NOW = Timestamp(dt.datetime.now(), unit="s", tz="US/Eastern").normalize()
 CURRENT_WEEK = NOW.isocalendar()[1]
 MONTHS = ["october", "november", "december"]
