@@ -39,15 +39,15 @@ test:
     - pip install pylint
     - python -m pylint /src
 
-run:
-  script:
-    - python setup.py bdist_wheel
-    # an alternative approach is to install and run:   
-    - pip install dist/*
-    # run the command here
-  artifacts:
-    paths:
-      - dist/*.whl
+# run:
+#   script:
+#     - python setup.py bdist_wheel
+#     # an alternative approach is to install and run:   
+#     - pip install dist/*
+#     # run the command here
+#   artifacts:
+#     paths:
+#       - dist/*.whl
 
 
 sast:
