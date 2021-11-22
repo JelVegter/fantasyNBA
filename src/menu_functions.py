@@ -1,15 +1,15 @@
 from pprint import pprint
-from schedule import Schedule
-from league import MY_TEAM
-from playergroup import (
+from src.schedule import Schedule
+from src.league import MY_TEAM
+from src.playergroup import (
     MyPlayerGroup,
     OtherPlayerGroup,
     FreeAgentPlayerGroup,
     choose_team,
 )
-from players import FREE_AGENTS, retrieve_free_agents
-from streaming import find_optimal_solution
-from teams import TEAMS
+from src.players import FREE_AGENTS, retrieve_free_agents
+from src.streaming import find_optimal_solution
+from src.teams import TEAMS
 
 SCHEDULE = Schedule(2022)
 

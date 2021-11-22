@@ -1,69 +1,6 @@
 from typing import List
 import psycopg2
 import os
-import pandas as pd
-
-
-# conn = psycopg2.connect(
-#     database="postgres",
-#     user="user",
-#     password="pass",
-#     port=5432,
-#     host="localhost",
-# )
-#
-# command = """
-#         CREATE TABLE schedule (
-#             Test1 SERIAL PRIMARY KEY,
-#             Test2 VARCHAR(255) NOT NULL
-#         )
-#         """
-#
-# cur = conn.cursor()
-# cur.execute(command)
-# cur.close()
-# conn.commit()
-# print("success")
-
-
-def create_tables():
-    """create tables in the PostgreSQL database"""
-    commands = (
-        """
-        CREATE TABLE vendors (
-            vendor_id SERIAL PRIMARY KEY,
-            vendor_name VARCHAR(255) NOT NULL
-        )
-        """,
-        """ CREATE TABLE parts (
-                part_id SERIAL PRIMARY KEY,
-                part_name VARCHAR(255) NOT NULL
-                )
-        """,
-        """
-        CREATE TABLE part_drawings (
-                part_id INTEGER PRIMARY KEY,
-                file_extension VARCHAR(5) NOT NULL,
-                drawing_data BYTEA NOT NULL,
-                FOREIGN KEY (part_id)
-                REFERENCES parts (part_id)
-                ON UPDATE CASCADE ON DELETE CASCADE
-        )
-        """,
-        """
-        CREATE TABLE vendor_parts (
-                vendor_id INTEGER NOT NULL,
-                part_id INTEGER NOT NULL,
-                PRIMARY KEY (vendor_id , part_id),
-                FOREIGN KEY (vendor_id)
-                    REFERENCES vendors (vendor_id)
-                    ON UPDATE CASCADE ON DELETE CASCADE,
-                FOREIGN KEY (part_id)
-                    REFERENCES parts (part_id)
-                    ON UPDATE CASCADE ON DELETE CASCADE
-        )
-        """,
-    )
 
 
 class Connection:

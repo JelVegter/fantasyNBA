@@ -1,1 +1,1 @@
-from playergroup import MyPlayerGroup
+from src.playergroup import MyPlayerGroup
