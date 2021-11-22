@@ -30,6 +30,7 @@ before_script:
 
 test:
   script:
+    - pip install pytest
     - python -m pytest
     - pip install tox flake8  # you can also use tox
     - tox -e py36,flake8
@@ -44,16 +45,6 @@ run:
     paths:
       - dist/*.whl
 
-pages:
-  script:
-    - pip install sphinx sphinx-rtd-theme
-    - cd doc ; make html
-    - mv build/html/ ../public/
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 sast:
   stage: test
