@@ -14,5 +14,4 @@ sast:
 include:
 - template: Security/SAST.gitlab-ci.yml
 before_script:
-  - pip install -r requirements.txt
   - pip install pytest
