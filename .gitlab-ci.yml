@@ -12,7 +12,8 @@ Build:
   stage: build
   image: python:3.9
   script:
-    - apt-get update -q -y
+    # - apt-get update -q -y
+    - sudo apt update && sudo apt upgrade -y
     - apt-get install -y python-pip
     - python -V
     - echo "hello world"
