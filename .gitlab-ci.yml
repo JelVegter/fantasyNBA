@@ -17,24 +17,24 @@ variables:
 #
 # If you want to also cache the installed packages, you have to install
 # them in a virtualenv and cache it as well.
-cache:
-  paths:
-    - .cache/pip
-    - venv/
+# cache:
+#   paths:
+#     - .cache/pip
+#     - venv/
 
 before_script:
-  - python -V  # Print out python version for debugging
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
+  # - python -V  # Print out python version for debugging
+  # - pip install virtualenv
+  # - virtualenv venv
+  # - source venv/bin/activate
   - pip install -r requirements.txt
 
 test:
   script:
     - pip install pytest
     - python -m pytest
-    - pip install tox flake8  # you can also use tox
-    - tox -e py36,flake8
+    # - pip install tox flake8  # you can also use tox
+    # - tox -e py36,flake8
 
 # run:
 #   script:
@@ -47,7 +47,7 @@ test:
 #       - dist/*.whl
 
 
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+# sast:
+#   stage: test
+# include:
+# - template: Security/SAST.gitlab-ci.yml
