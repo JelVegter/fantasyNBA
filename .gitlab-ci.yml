@@ -8,7 +8,6 @@ stages:
 - test
 pytest:
   script:
-    - pip install -r requirements.txt
     - python -m pytest
 sast:
   stage: test
