@@ -1,4 +1,4 @@
-from src.schedule import Schedule, schedule_builder, teams_games_per_day
+from schedule import Schedule, schedule_builder, teams_games_per_day
 from pandas import DataFrame
 import pytest
 

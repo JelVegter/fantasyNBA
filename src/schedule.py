@@ -13,8 +13,8 @@ from pandas import (
     concat,
     offsets,
 )
-from src.teams import TEAMS, abbreviate_team
-from src.league import YEAR
+from teams import TEAMS, abbreviate_team
+from league import YEAR
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -177,6 +177,7 @@ def team_games_days_count(team: str, schedule: DataFrame, date, days_offset: int
 
 def team_games_to_play(teams: List[str]) -> DataFrame:
     """Function to calculate the amount of games a certain team has remaining in a week"""
+    SCHEDULE = Schedule(2022)
     weeks = SCHEDULE.weeks
     game_dates = SCHEDULE.schedule
     team_games = DataFrame()

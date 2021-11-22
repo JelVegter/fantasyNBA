@@ -7,3 +7,31 @@ services:
       - "8501:8501"
     volumes:
       - .:/app
+
+  postgres:
+    image: postgres
+    container_name: streamlit-nba-fantasy-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_USER: user
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: test
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9090:8080

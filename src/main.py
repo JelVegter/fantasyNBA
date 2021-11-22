@@ -1,6 +1,6 @@
 import streamlit as st
 from pages.multipage import MultiPage
-from src.pages import (
+from pages import (
     page_free_agents,
     page_schedule,
     page_matchup_comparison,

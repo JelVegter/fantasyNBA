@@ -2,7 +2,7 @@
 from typing import List
 from pandas import DataFrame
 from espn_api.basketball import Player
-from src.league import league
+from league import league
 
 
 def refresh_free_agents(size: int):

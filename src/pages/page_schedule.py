@@ -3,12 +3,15 @@
 # ---------------------------------------------#
 import streamlit as st
 from league import league
-from schedule import SCHEDULE
+from schedule import Schedule
 from pages.tables import table_schedule, table_free_agents, table_roster
 from teams import FANTASY_TEAMS
 
+
 def app():
     # Sidebar
+    SCHEDULE = Schedule(2022)
+
     with st.sidebar:
         SELECTED_TEAM_STR = st.sidebar.selectbox(
             label="Select Fantasy Team", options=FANTASY_TEAMS
