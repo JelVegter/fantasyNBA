@@ -6,6 +6,10 @@
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
 - test
+pytest:
+  script:
+    - pip install -r requirements.txt
+    - python -m pytest
 sast:
   stage: test
 include:
