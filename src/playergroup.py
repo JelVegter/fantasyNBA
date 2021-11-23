@@ -4,7 +4,7 @@ from pandas import DataFrame
 from schedule import team_games_to_play
 from teams import TEAMS
 from league import league
-from players import FREE_AGENTS, retrieve_player_data, Player
+from players import FREE_AGENTS, retrieve_player_data
 
 
 def choose_team() -> Optional[int]:
@@ -42,6 +42,14 @@ class PlayerGroup:
         stats_and_games.reset_index(inplace=True, drop=True)
         return stats_and_games
 
+
+class OtherPlayerGroup(PlayerGroup):
+    """Class with a group of players"""
+
+    def __init__(self, team) -> None:
+        self.team = team
+        self.players = self.team.roster
+
     def estimate_points(
         self, period: str = "Pot.Week", hide_injured: bool = False
     ) -> float:
@@ -75,22 +83,6 @@ class PlayerGroup:
         pprint(better_free_agents.head(15))
 
 
-class MyPlayerGroup(PlayerGroup):
-    """Class containing a group of players specifically my roster"""
-
-    def __init__(self, team) -> None:
-        self.team = team
-        self.players = self.team.roster
-
-
-class OtherPlayerGroup(PlayerGroup):
-    """Class with a group of players"""
-
-    def __init__(self, team) -> None:
-        self.team = team
-        self.players = self.team.roster
-
-
 class FreeAgentPlayerGroup(PlayerGroup):
     """Class with a group of players, specifically free agents"""
 
@@ -107,12 +99,13 @@ class FreeAgentPlayerGroup(PlayerGroup):
 
 
 def main():
+    pass
     # Create a schedule to test
 
     # Test MyPlayerGroup Child Class
-    my_roster = MyPlayerGroup(2)
+    # my_roster = MyPlayerGroup(2)
     # print(my_roster.players)
-    print(my_roster.retrieve_stats())
+    # print(my_roster.retrieve_stats())
     # print(my_roster.estimate_points(period='Pot.Week'))
     # my_roster.compare_matchup(period='Pot.Week')
     # my_roster.suggest_trades()

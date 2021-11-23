@@ -1,1 +1,0 @@
-from playergroup import MyPlayerGroup
