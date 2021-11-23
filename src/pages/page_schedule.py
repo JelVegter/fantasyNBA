@@ -2,10 +2,10 @@
 # ------------  PAGE 2 - Schedule -------------#
 # ---------------------------------------------#
 import streamlit as st
-from src.league import league
-from src.schedule import Schedule
-from src.pages.tables import table_schedule, table_free_agents, table_roster
-from src.teams import FANTASY_TEAMS
+from league import league
+from schedule import Schedule
+from pages.tables import table_schedule, table_free_agents, table_roster
+from teams import FANTASY_TEAMS
 
 
 def app():

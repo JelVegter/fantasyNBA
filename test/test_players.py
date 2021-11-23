@@ -1,4 +1,4 @@
-from src.players import (
+from players import (
     retrieve_free_agents,
     player_scores,
     player_info,
