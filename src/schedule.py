@@ -12,6 +12,7 @@ from pandas import (
     read_html,
     concat,
     offsets,
+    read_csv,
 )
 from teams import TEAMS, abbreviate_team
 from league import YEAR
@@ -90,6 +91,17 @@ async def fetch_api_data(urls: list) -> tuple:
     return responses
 
 
+def retrieve_amplifier_ratio(amplifiers: DataFrame, team: str):
+    if team == "PHL":
+        team = "PHI"
+    elif team == "BKN":
+        team = "BRK"
+    elif team == "CHA":
+        team = "CHO"
+    amplifier = amplifiers.loc[team, "Amplifier"]
+    return amplifier
+
+
 @time_func
 def schedule_builder(year: int, months: list) -> DataFrame:
     """Function to create the NBA schedule by scraping data from basketball-reference.com"""
@@ -108,6 +120,13 @@ def schedule_builder(year: int, months: list) -> DataFrame:
     # games = games.loc[games["Week"] >= CURRENT_WEEK]
     games["Visitor/Neutral"] = games["Visitor/Neutral"].map(abbreviate_team)
     games["Home/Neutral"] = games["Home/Neutral"].map(abbreviate_team)
+    amplifier = read_csv("data/team_point_amplifiers.csv", index_col="Team")
+    games["Visitor_amp"] = games["Visitor/Neutral"].apply(
+        lambda x: retrieve_amplifier_ratio(amplifier, x)
+    )
+    games["Home_amp"] = games["Home/Neutral"].apply(
+        lambda x: retrieve_amplifier_ratio(amplifier, x)
+    )
     return games
 
 
@@ -153,6 +172,16 @@ def teams_games_per_day(schedule: DataFrame, week: int, sort="Total") -> DataFra
     return daily_schedule
 
 
+def calculate_total_amplifier_ratio(row: DataFrame, team: str):
+    calculated_amp = 0
+    if row.shape[0] > 0:
+        if row["Home/Neutral"] == team:
+            calculated_amp = row["Visitor_amp"]
+        else:
+            calculated_amp = row["Home_amp"]
+    return calculated_amp
+
+
 def team_games_week_count(team: str, schedule: DataFrame, week: int, date):
     """Function to calculate the amount of games a certain team has remaining in a week"""
     schedule = schedule.loc[schedule["Date"] >= date]
@@ -160,7 +189,12 @@ def team_games_week_count(team: str, schedule: DataFrame, week: int, date):
     schedule = schedule.loc[
         (schedule["Visitor/Neutral"] == team) | (schedule["Home/Neutral"] == team)
     ]
-    return schedule.count()[0]
+    schedule["Calculated_amp"] = schedule.apply(
+        lambda x: calculate_total_amplifier_ratio(x, team),
+        axis=1,
+    )
+    # return schedule.count()[0]
+    return schedule.count()[0], schedule["Calculated_amp"].sum()
 
 
 def team_games_days_count(team: str, schedule: DataFrame, date, days_offset: int):
@@ -172,7 +206,11 @@ def team_games_days_count(team: str, schedule: DataFrame, date, days_offset: int
     schedule = schedule.loc[
         (schedule["Visitor/Neutral"] == team) | (schedule["Home/Neutral"] == team)
     ]
-    return schedule.count()[0]
+    schedule["Calculated_amp"] = schedule.apply(
+        lambda x: calculate_total_amplifier_ratio(x, team),
+        axis=1,
+    )
+    return schedule.count()[0], schedule["Calculated_amp"].sum()
 
 
 def team_games_to_play(teams: List[str]) -> DataFrame:
@@ -182,27 +220,36 @@ def team_games_to_play(teams: List[str]) -> DataFrame:
     game_dates = SCHEDULE.schedule
     team_games = DataFrame()
     count = 0
-    for t in teams:
-        team_games.at[count, "Team"] = t
-        team_games.at[count, "This Week"] = team_games_week_count(
-            t, game_dates, weeks[0], NOW
-        )
-        team_games.at[count, "Next Week"] = team_games_week_count(
-            t, game_dates, weeks[1], NOW
-        )
-        team_games.at[count, "Today"] = team_games_days_count(t, game_dates, NOW, 0)
-        team_games.at[count, "Next3Days"] = team_games_days_count(t, game_dates, NOW, 2)
+    for team in teams:
+        team_games.at[count, "Team"] = team
+        (
+            team_games.at[count, "This Week"],
+            team_games.at[count, "ThisWeekAmp"],
+        ) = team_games_week_count(team, game_dates, weeks[0], NOW)
+        (
+            team_games.at[count, "Next Week"],
+            team_games.at[count, "NextWeekAmp"],
+        ) = team_games_week_count(team, game_dates, weeks[1], NOW)
+        (
+            team_games.at[count, "Today"],
+            team_games.at[count, "TodayAmp"],
+        ) = team_games_days_count(team, game_dates, NOW, 0)
+        (
+            team_games.at[count, "Next3Days"],
+            team_games.at[count, "Next3DaysAmp"],
+        ) = team_games_days_count(team, game_dates, NOW, 2)
         count += 1
-    for c in team_games.columns:
-        try:
-            team_games[c] = team_games[c].astype(int)
-        except:
-            pass
+        int_cols = ["This Week", "Next Week", "Today", "Next3Days"]
+        for col in int_cols:
+            try:
+                team_games[col] = team_games[col].astype(int)
+            except:
+                pass
     return team_games
 
 
 def main() -> None:
-    # SCHEDULE = Schedule(YEAR)
+    SCHEDULE = Schedule(YEAR)
     # print(SCHEDULE.year)
     # print(SCHEDULE.months)
     # print(SCHEDULE.weeks)
@@ -211,8 +258,8 @@ def main() -> None:
     # pprint(retrieve_schedule())
     # retrieve_schedule()
     # test_func()
-    results = schedule_builder(year=2022, months=["october"])
-    pass
+    # results = schedule_builder(year=2022, months=["october"])
+    print(SCHEDULE.schedule)
     # print(results)
 
 

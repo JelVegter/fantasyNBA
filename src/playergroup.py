@@ -29,13 +29,13 @@ class PlayerGroup:
         games = team_games_to_play(TEAMS)
         stats_and_games = stats.merge(games, how="left", on="Team")
         stats_and_games["Pot.Week"] = (
-            stats_and_games["Score"] * stats_and_games["This Week"]
+            stats_and_games["Score"] * stats_and_games["ThisWeekAmp"]
         )
         stats_and_games["Pot.3Days"] = (
-            stats_and_games["Score"] * stats_and_games["Next3Days"]
+            stats_and_games["Score"] * stats_and_games["Next3DaysAmp"]
         )
         stats_and_games["Pot.NextWeek"] = (
-            stats_and_games["Score"] * stats_and_games["Next Week"]
+            stats_and_games["Score"] * stats_and_games["NextWeekAmp"]
         )
         if hide_injured:
             stats_and_games = stats_and_games.loc[stats_and_games["Status"] != "OUT"]
@@ -99,7 +99,6 @@ class FreeAgentPlayerGroup(PlayerGroup):
 
 
 def main():
-    pass
     # Create a schedule to test
 
     # Test MyPlayerGroup Child Class
@@ -112,7 +111,7 @@ def main():
 
     # Test OtherPlayerGroup Child Class -- choose team before class and init with choice
     # choice = choose_team()
-    # other_roster = OtherPlayerGroup(choice)
+    # other_roster = OtherPlayerGroup(2)
     # print(other_roster.team)
     # print(other_roster.players)
     # print(other_roster.retrieve_stats())
@@ -120,8 +119,8 @@ def main():
     # other_roster.suggest_trades()
 
     # Test FreeAgentPlayerGroup Child Class
-    # free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
-    # free_agents.show_free_agents(sort='Score', hide_injured=False)
+    free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
+    free_agents.show_free_agents(sort="Score", hide_injured=False)
 
 
 if __name__ == "__main__":

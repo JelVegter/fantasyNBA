@@ -104,18 +104,21 @@ def fetch_played_games(months: List[str]) -> DataFrame:
     games = pd.concat([pd.read_html(r)[0] for r in responses])
     games = games.loc[games["Attend."] > 0]
     games["AbbrHomeTeam"] = games["Home/Neutral"].map(find_abbreviation)
+    games["AbbrVisitorTeam"] = games["Visitor/Neutral"].map(find_abbreviation)
     games["DateStr"] = games["Date"].map(convert_date)
     games["url"] = games.apply(gen_url, axis=1)
     return games
 
 
-def fetch_all_stats(urls: List[str], dates: list):
+def fetch_all_stats(
+    urls: List[str], dates: list, home_teams: list, away_teams: list
+) -> DataFrame:
     responses = asyncio.run(fetch_api_data(urls))
-    reponses_and_dates = zip(dates, responses)
+    reponses_and_dates = zip(dates, responses, home_teams, away_teams)
     tables = []
     counter = 0
-    for date, response in reponses_and_dates:
-        tables.append(parse_html_tables(response, date))
+    for date, response, home_team, away_team in reponses_and_dates:
+        tables.append(parse_html_tables(response, date, home_team, away_team))
         counter += 1
         if counter % 10 == 0:
             print(f"Parsed {counter} of out {len(responses)} responses")
@@ -124,13 +127,17 @@ def fetch_all_stats(urls: List[str], dates: list):
     return all_stats
 
 
-def parse_html_tables(html: str, date) -> pd.DataFrame:
+def parse_html_tables(
+    html: str, date, home_team_ab: str, away_team_ab: str
+) -> pd.DataFrame:
     away_team = pd.read_html(html)[0]
+    away_team["Opponent"] = home_team_ab
     minutes_played = away_team[("Basic Box Score Stats", "MP")].iloc[-1]
     minutes_played = int(minutes_played)
     nr_overtimes = (minutes_played - 240) / 25
     table_html_index = int(8 + nr_overtimes)
     home_team = pd.read_html(html)[table_html_index]
+    home_team["Opponent"] = away_team_ab
     stats = pd.concat([away_team, home_team])
     stats["GameDay"] = date
     return stats
@@ -142,7 +149,9 @@ def get_all_stats(months: List[str]) -> pd.DataFrame:
     played_games = fetch_played_games(months)
     urls = played_games["url"].to_list()
     dates = played_games["Date"].to_list()
-    stats = fetch_all_stats(urls, dates)
+    home_teams = played_games["AbbrHomeTeam"].to_list()
+    away_teams = played_games["AbbrVisitorTeam"].to_list()
+    stats = fetch_all_stats(urls, dates, home_teams, away_teams)
     return stats
 
 
@@ -171,6 +180,7 @@ def clean_all_stats(all_stats: pd.DataFrame) -> pd.DataFrame:
         "PF",
         "PTS",
         "+/-",
+        "Opponent",
         "GameDay",
     ]
 
@@ -304,12 +314,35 @@ def calculate_points(
     return stats
 
 
+def calculate_points_against_teams(stats: DataFrame, refresh: bool = True) -> DataFrame:
+    stats = stats.rename(columns={"Opponent": "Team"})
+    stats = stats[["Team", "Points", "GameDay"]]
+    points_against_per_day = stats.groupby(by=["Team", "GameDay"], as_index=False).sum()
+    mean_points_against = (
+        points_against_per_day[["Team", "Points"]].groupby(by="Team").mean()
+    )
+    avg = mean_points_against["Points"].mean()
+    mean_points_against["Amplifier"] = mean_points_against["Points"] / avg
+    if refresh:
+        mean_points_against.to_csv("data/team_point_amplifiers.csv")
+    return mean_points_against
+
+
+def refresh_data():
+    data = get_dataframe(refresh=True)
+    data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
+    team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
+
+
 def main() -> None:
     data = get_dataframe(refresh=True)
     data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
+    team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
+    print(team_point_amplifiers.sort_values(by="Amplifier"))
     pprint(data.loc[data["Player"] == "Joe Harris"])
     # responses = get_all_stats(["november"])
     # print(responses)
+    # print(data.columns)
 
 
 if __name__ == "__main__":
