@@ -15,7 +15,7 @@ def test_schedule_builder():
     games = schedule_builder(year=2022, months=["october"])
     assert isinstance(games, DataFrame)
     assert games.shape[0] == 93
-    assert games.shape[1] == 5
+    assert games.shape[1] == 7
 
 
 @pytest.mark.parametrize(

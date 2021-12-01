@@ -21,6 +21,7 @@ try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 except:
     pass
+
 NOW = Timestamp(dt.datetime.now(), unit="s", tz="US/Eastern").normalize()
 CURRENT_WEEK = NOW.isocalendar()[1]
 MONTHS = ["october", "november", "december"]
@@ -56,7 +57,7 @@ class Schedule:
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
             games[weekdays] = games[weekdays].applymap(
                 lambda x: x if isinstance(x, str) else ""
-            )  # TODO changed
+            )
             games = games.sort_values(by=sort, ascending=False)
             games[["Total", "Today", "Next3Days"]] = games[
                 ["Total", "Today", "Next3Days"]
