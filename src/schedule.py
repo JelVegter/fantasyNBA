@@ -3,7 +3,6 @@ from typing import List
 import datetime as dt
 import asyncio
 import aiohttp
-import requests
 from timeit import default_timer
 from pandas import (
     DataFrame,

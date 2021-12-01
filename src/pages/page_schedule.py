@@ -6,7 +6,6 @@ from league import league
 from schedule import Schedule
 from pages.tables import table_schedule, table_free_agents, table_roster
 from teams import FANTASY_TEAMS
-from players import refresh_free_agents
 
 
 def app():

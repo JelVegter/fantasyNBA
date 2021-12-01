@@ -1,6 +1,5 @@
 import streamlit as st
 from streaming import find_optimal_solution
-from players import refresh_free_agents
 
 
 def app():

@@ -5,7 +5,6 @@ import streamlit as st
 from league import league
 from pages.tables import table_free_agents, table_roster
 from teams import FANTASY_TEAMS
-from players import refresh_free_agents
 
 
 def app():
