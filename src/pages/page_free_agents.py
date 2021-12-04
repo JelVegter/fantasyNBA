@@ -2,9 +2,9 @@
 # ----------  PAGE 1 - FREE AGENTS - ----------#
 # ---------------------------------------------#
 import streamlit as st
-from league import league
-from pages.tables import table_free_agents, table_roster
-from teams import FANTASY_TEAMS
+from src.tables import table_free_agents, table_roster
+from src.league import league
+from src.teams import FANTASY_TEAMS
 
 
 def app():
@@ -23,11 +23,7 @@ def app():
         SEARCHED_PLAYER = c.text_input(label="Search Player")
         SEARCHED_TEAMS = d.text_input(label="Search Teams")
 
-    if INJURED_PLAYERS == "Hide":
-        INJURED_PLAYERS = True
-    else:
-        INJURED_PLAYERS = False
-
+    INJURED_PLAYERS = bool(INJURED_PLAYERS == "Hide")
     SELECTED_TEAM = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR][0]
 
     st.title("Free Agents")

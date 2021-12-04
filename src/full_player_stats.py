@@ -1,13 +1,12 @@
 from datetime import datetime
-import asyncio
-import aiohttp
 from pprint import pprint
-from timeit import default_timer
 from typing import List
+import asyncio
 from dateutil import parser
 import pandas as pd
 from numpy import nan
 from pandas.core.frame import DataFrame
+from nba_utils import fetch_api_data, time_func
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -67,33 +66,6 @@ def gen_url(row) -> str:
     date = datetime.strftime(date, "%Y%m%d")
     url = f"https://www.basketball-reference.com/boxscores/{date}0{team}.html"
     return url
-
-
-def time_func(func):
-    def wrapper(*args, **kwargs):
-        start = default_timer()
-        result = func(*args, **kwargs)
-        end = default_timer()
-        print(end - start)
-        return result
-
-    return wrapper
-
-
-async def fetch(session, url: str):
-    async with session.get(url, ssl=False) as response:
-        data = await response.read()
-        return data
-
-
-async def fetch_api_data(urls: list) -> tuple:
-    print("Fetching api data...")
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in urls:
-            tasks.append(fetch(session, url))
-        responses = await asyncio.gather(*tasks, return_exceptions=False)
-    return responses
 
 
 def fetch_played_games(months: List[str]) -> DataFrame:
@@ -274,16 +246,16 @@ def calc_rolling(
 ) -> pd.DataFrame:
     stats = stats.sort_index()
     for window in windows:
-        dir = "Bckw"
+        direction = "Bckw"
         if forward is True:
             stats = stats.sort_index(ascending=False)
-            dir = "Fwrd"
-        rolling_period = f"Roll{dir}{window}"
+            direction = "Fwrd"
+        rolling_period = f"Roll{direction}{window}"
 
         if forward is True:
             rolling = pd.DataFrame()
-            for p in stats["Player"].unique():
-                temp_stats = stats.loc[stats["Player"] == p]
+            for player in stats["Player"].unique():
+                temp_stats = stats.loc[stats["Player"] == player]
                 temp_stats = (
                     temp_stats[["Player", "GameDay", "Points"]]
                     .shift(1)
@@ -335,6 +307,7 @@ def refresh_data():
     data = get_dataframe(refresh=True)
     data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
     team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
+    return team_point_amplifiers
 
 
 def main() -> None:

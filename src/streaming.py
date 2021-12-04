@@ -2,9 +2,9 @@ from itertools import combinations_with_replacement
 from typing import List, Tuple, Dict
 from collections import Counter
 from pandas import DataFrame, concat
-from playergroup import FreeAgentPlayerGroup
-from players import retrieve_player_data, FREE_AGENTS
-from schedule import Schedule, NOW
+from src.playergroup import FreeAgentPlayerGroup
+from src.players import retrieve_player_data, FREE_AGENTS
+from src.schedule import Schedule, NOW
 
 SCHEDULE = Schedule(2022)
 
@@ -130,7 +130,7 @@ def retrieve_best_solutions(
     solution_dictionary: dict, number_solutions: int
 ) -> Dict[Tuple[int], float]:
     """Function to find the top x solutions based on points"""
-    best_solutions_dictionary = dict()
+    best_solutions_dictionary = {}
     list_of_solutions = list(solution_dictionary.keys())
     list_of_solution_points = list(solution_dictionary.values())
 
@@ -149,18 +149,17 @@ def retrieve_best_solutions(
 def streaming_options_results(
     dataframe: DataFrame,
     best_solution_players_dictionary: Dict[tuple, float],
-    week: str,
     legal_solutions_checked: int,
 ):
     """Function to print the best streaming options"""
     weekdays = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"][CUR_DAY_OF_WEEK:]
     print(f"Possible solutions checked: {legal_solutions_checked}")
 
-    results = dict()
+    results = {}
 
     count = 0
 
-    for solution, points in best_solution_players_dictionary.items():
+    for solution in best_solution_players_dictionary.keys():
         streaming_solution = DataFrame()
         # Find the names of players based on their index
         solution_players: List[str] = [
@@ -179,27 +178,12 @@ def streaming_options_results(
         count += 1
     return results
 
-    # for solution, points in best_solution_players_dictionary.items():
-    #     # Find the names of players based on their index
-    #     solution_players: List[str] = [dataframe.loc[index, "Player"] for index in solution]
-    #     solution_players_points: List[str] = [dataframe.loc[index, d] for d, index in zip(DAY_COLUMNS, solution)]
-    #     # Points of players for the correct day
-    #     stream_schedule = zip(weekdays, solution_players, solution_players_points)
-    #     print("-" * 25)
-    #     print(f"Projected points: {points}")
-    #     print("Player Stream:")
-    #     return [(f'{day} {player} - {points}') for day, player, points in stream_schedule]
-    #     # [print(f'{day} {player} - {points}') for day, player, points in stream_schedule]
-    #     # print()
 
-
-def brute_force(
-    dataframe: DataFrame, max_trades: int, week: str
-):  # -> Dict[tuple, float]
-    print(f"Brute forcing all combinations...")
+def brute_force(dataframe: DataFrame, max_trades: int):  # -> Dict[tuple, float]
+    print("Brute forcing all combinations...")
     columns = ["Player"] + DAY_COLUMNS
     dataframe = dataframe[columns]
-    solution_dictionary = dict()
+    solution_dictionary = {}
     legal_solutions_checked = 0
     indexes = dataframe.index
     combinations = list(combinations_with_replacement(indexes, NUM_DAYS_REMAIN))
@@ -217,7 +201,7 @@ def brute_force(
                 solution_dictionary[combo] = round(points)
     best_solution_dictionary = retrieve_best_solutions(solution_dictionary, 5)
     solutions = streaming_options_results(
-        dataframe, best_solution_dictionary, week, legal_solutions_checked
+        dataframe, best_solution_dictionary, legal_solutions_checked
     )
     return solutions
 
@@ -236,8 +220,8 @@ def prep_dataframe(max_slots: int, week: str):
 
 def find_optimal_solution(max_slots: int, max_trades: int, week: str):
     dataframe = prep_dataframe(max_slots, week)
-    bf = brute_force(dataframe, max_trades, week)
-    return bf
+    solutions = brute_force(dataframe, max_trades)
+    return solutions
 
 
 # def find_optimal_solution(max_slots: int, max_trades: int, week: str):

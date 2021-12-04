@@ -1,10 +1,10 @@
 from typing import List, Optional
 from pprint import pprint
 from pandas import DataFrame
-from schedule import team_games_to_play
-from teams import TEAMS
-from league import league
-from players import FREE_AGENTS, retrieve_player_data
+from src.schedule import team_games_to_play
+from src.teams import TEAMS
+from src.league import league
+from src.players import FREE_AGENTS, retrieve_player_data
 
 
 def choose_team() -> Optional[int]:

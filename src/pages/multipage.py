@@ -1,12 +1,13 @@
 import streamlit as st
-from players import refresh_free_agents
+from src.players import refresh_free_agents
 
 # Define the multipage class to manage the multiple apps in our program
 class MultiPage:
     """Framework for combining multiple streamlit applications."""
 
     def __init__(self) -> None:
-        """Constructor class to generate a list which will store all our applications as an instance variable."""
+        """Constructor class to generate a list which will store all our
+        applications as an instance variable."""
         self.pages = []
 
     def add_page(self, title, func) -> None:

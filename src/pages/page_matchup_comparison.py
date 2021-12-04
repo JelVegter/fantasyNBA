@@ -2,10 +2,11 @@
 # ------------  PAGE 3 - Matchups -------------#
 # ---------------------------------------------#
 import streamlit as st
-from league import league
-from playergroup import OtherPlayerGroup
-from pages.tables import table_roster
-from teams import FANTASY_TEAMS
+from src.league import league
+from src.playergroup import OtherPlayerGroup
+from src.teams import FANTASY_TEAMS
+from src.tables import table_roster
+
 
 def app():
     # Side bar
@@ -26,10 +27,7 @@ def app():
     else:
         PERIOD = "Pot.NextWeek"
 
-    if INJURED_PLAYERS == "Hide":
-        INJURED_PLAYERS = True
-    else:
-        INJURED_PLAYERS = False
+    INJURED_PLAYERS = bool(INJURED_PLAYERS == "hide")
 
     SELECTED_TEAM_1 = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR_1][0]
     SELECTED_TEAM_2 = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR_2][0]

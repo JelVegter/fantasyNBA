@@ -1,4 +1,4 @@
-from league import league, MY_TEAM
+from src.league import league, MY_TEAM
 
 team_dictionary = {
     "Atlanta Hawks": "ATL",
@@ -39,8 +39,6 @@ def abbreviate_team(team: str) -> str:
 
 
 TEAMS = list(team_dictionary.values())
-
-
 FANTASY_TEAMS = [t.team_name for t in league.teams]
 my_team = FANTASY_TEAMS.pop(MY_TEAM)
 FANTASY_TEAMS.insert(0, my_team)

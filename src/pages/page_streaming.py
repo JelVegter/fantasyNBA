@@ -1,5 +1,5 @@
 import streamlit as st
-from streaming import find_optimal_solution
+from src.streaming import find_optimal_solution
 
 
 def app():

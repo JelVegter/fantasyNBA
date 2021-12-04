@@ -2,8 +2,6 @@
 from typing import List
 import datetime as dt
 import asyncio
-import aiohttp
-from timeit import default_timer
 from pandas import (
     DataFrame,
     Timestamp,
@@ -13,8 +11,9 @@ from pandas import (
     offsets,
     read_csv,
 )
-from teams import TEAMS, abbreviate_team
-from league import YEAR
+from src.nba_utils import fetch_api_data, time_func
+from src.teams import TEAMS, abbreviate_team
+from src.league import YEAR
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -50,7 +49,7 @@ class Schedule:
                 week_of_games = 1
             else:
                 week_of_games += 1
-        games = teams_games_per_day(schedule=schedule, week=week_of_games, sort=sort)
+        games = teams_games_per_day(schedule=schedule, week=week_of_games)
         if pretty is True:
             weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
@@ -62,33 +61,6 @@ class Schedule:
                 ["Total", "Today", "Next3Days"]
             ].astype("int")
         return games
-
-
-def time_func(func):
-    def wrapper(*args, **kwargs):
-        start = default_timer()
-        result = func(*args, **kwargs)
-        end = default_timer()
-        print(end - start)
-        return result
-
-    return wrapper
-
-
-async def fetch(session, url: str):
-    async with session.get(url, ssl=False) as response:
-        data = await response.read()
-        return data
-
-
-async def fetch_api_data(urls: list) -> tuple:
-    print("Fetching api data...")
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in urls:
-            tasks.append(fetch(session, url))
-        responses = await asyncio.gather(*tasks, return_exceptions=True)
-    return responses
 
 
 def retrieve_amplifier_ratio(amplifiers: DataFrame, team: str):
@@ -135,7 +107,7 @@ def convert_timestamp_to_datetime(timestamp: Timestamp):
     return to_datetime(timestamp)
 
 
-def teams_games_per_day(schedule: DataFrame, week: int, sort="Total") -> DataFrame:
+def teams_games_per_day(schedule: DataFrame, week: int) -> DataFrame:
     """Function to create a per-day overview of which teams are playing"""
     today_day_of_week = NOW.dayofweek
     schedule = schedule.loc[schedule["Date"] >= NOW]

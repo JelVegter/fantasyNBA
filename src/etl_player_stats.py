@@ -1,12 +1,11 @@
 import psycopg2
+from pandas import DataFrame
+from numpy import nan
 from src.full_player_stats import (
-    get_dataframe,
     get_all_stats,
     clean_all_stats,
     calculate_stat_points,
 )
-from pandas import DataFrame
-from numpy import nan
 
 MONTHS = [
     "october",

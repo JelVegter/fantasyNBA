@@ -2,11 +2,11 @@ version: "3.9" # optional since v1.27.0
 services:
   python:
     build: .
-    container_name: streamlit-nba-fantasy
+    container_name: fantasyNBA
     ports:
       - "8501:8501"
     volumes:
-      - .:/app
+      - .:/fantasyNBA
 
   db:
     image: postgres
