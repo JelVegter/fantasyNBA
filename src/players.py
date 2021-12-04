@@ -141,9 +141,9 @@ def retrieve_player_data(players: List[Player]) -> DataFrame:
 def main():
     """Main function for testing"""
     # print(retrieve_free_agents())
-    FREE_AGENTS = refresh_free_agents(100)
-    players = league.teams[2].roster
-    print(retrieve_player_data(players))
+    # FREE_AGENTS = refresh_free_agents(100)
+    # players = league.teams[2].roster
+    # print(retrieve_player_data(players))
 
 
 if __name__ == "__main__":

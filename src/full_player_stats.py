@@ -1,13 +1,12 @@
 from datetime import datetime
 from pprint import pprint
-from timeit import default_timer
 from typing import List
 import asyncio
-import aiohttp
 from dateutil import parser
 import pandas as pd
 from numpy import nan
 from pandas.core.frame import DataFrame
+from nba_utils import fetch_api_data, time_func
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -67,33 +66,6 @@ def gen_url(row) -> str:
     date = datetime.strftime(date, "%Y%m%d")
     url = f"https://www.basketball-reference.com/boxscores/{date}0{team}.html"
     return url
-
-
-def time_func(func):
-    def wrapper(*args, **kwargs):
-        start = default_timer()
-        result = func(*args, **kwargs)
-        end = default_timer()
-        print(end - start)
-        return result
-
-    return wrapper
-
-
-async def fetch(session, url: str):
-    async with session.get(url, ssl=False) as response:
-        data = await response.read()
-        return data
-
-
-async def fetch_api_data(urls: list) -> tuple:
-    print("Fetching api data...")
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in urls:
-            tasks.append(fetch(session, url))
-        responses = await asyncio.gather(*tasks, return_exceptions=False)
-    return responses
 
 
 def fetch_played_games(months: List[str]) -> DataFrame:

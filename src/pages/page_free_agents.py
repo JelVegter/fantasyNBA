@@ -23,11 +23,7 @@ def app():
         SEARCHED_PLAYER = c.text_input(label="Search Player")
         SEARCHED_TEAMS = d.text_input(label="Search Teams")
 
-    if INJURED_PLAYERS == "Hide":
-        INJURED_PLAYERS = True
-    else:
-        INJURED_PLAYERS = False
-
+    INJURED_PLAYERS = bool(INJURED_PLAYERS == "Hide")
     SELECTED_TEAM = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR][0]
 
     st.title("Free Agents")
