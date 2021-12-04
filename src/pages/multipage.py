@@ -22,7 +22,8 @@ class MultiPage:
     def run(self):
         # Drodown to select the page to run
         if st.button(label="Refresh Data"):
-            refresh_free_agents(100)
+            global FREE_AGENTS
+            FREE_AGENTS = refresh_free_agents(100)
         page = st.sidebar.selectbox(
             "App Navigation", self.pages, format_func=lambda page: page["title"]
         )

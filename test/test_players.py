@@ -1,5 +1,4 @@
 from players import (
-    retrieve_free_agents,
     player_scores,
     player_info,
     retrieve_player_data,
@@ -7,10 +6,6 @@ from players import (
 )
 from test.mock_objects import MOCK_TEAM, MOCK_PLAYER1, MOCK_PLAYER2
 import pytest
-
-
-def test_retrieve_free_agents_retrieve_data() -> None:
-    assert len(retrieve_free_agents()) > 0
 
 
 @pytest.mark.parametrize(

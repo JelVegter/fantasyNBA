@@ -19,11 +19,12 @@ def test_schedule_builder():
 
 
 @pytest.mark.parametrize(
-    ("x", "y", "value"), [(0, 0, 0), (0, 2, "IND"), (29, 0, "SAS"), (29, 1, 0)]
+    ("x", "y", "value"), [(0, 0, 0), (0, 6, "@CHA"), (29, 6, "TOR"), (29, 1, 0)]
 )
 def test_teams_games_per_day(x, y, value):
     SCHEDULE = Schedule(2022)
     games = teams_games_per_day(schedule=SCHEDULE.schedule, week=48)
+    print(games)
     assert isinstance(games, DataFrame)
     assert games.shape[0] == 30
     assert games.shape[1] == 10

@@ -5,12 +5,8 @@ from schedule import Schedule
 from pandas import DataFrame
 
 
-# @st.cache
-def build_free_agents():
-    return FreeAgentPlayerGroup(players=FREE_AGENTS)
-
-
-free_agents = build_free_agents()
+def build_free_agents(FREE_AGENTS):
+    return FreeAgentPlayerGroup(FREE_AGENTS)
 
 
 def hover(hover_color="#013220"):
@@ -39,6 +35,7 @@ def table_free_agents(
     SEARCHED_TEAMS: str,
     small: bool = False,
 ):
+    free_agents = build_free_agents(FREE_AGENTS)
     free_agent_list = free_agents.players
     player_stats = free_agents.retrieve_stats(hide_injured=INJURED_PLAYERS)
 
