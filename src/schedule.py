@@ -13,8 +13,8 @@ from pandas import (
     offsets,
     read_csv,
 )
-from teams import TEAMS, abbreviate_team
-from league import YEAR
+from src.teams import TEAMS, abbreviate_team
+from src.league import YEAR
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

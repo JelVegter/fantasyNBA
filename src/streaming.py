@@ -2,9 +2,9 @@ from itertools import combinations_with_replacement
 from typing import List, Tuple, Dict
 from collections import Counter
 from pandas import DataFrame, concat
-from playergroup import FreeAgentPlayerGroup
-from players import retrieve_player_data, FREE_AGENTS
-from schedule import Schedule, NOW
+from src.playergroup import FreeAgentPlayerGroup
+from src.players import retrieve_player_data, FREE_AGENTS
+from src.schedule import Schedule, NOW
 
 SCHEDULE = Schedule(2022)
 

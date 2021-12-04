@@ -2,9 +2,9 @@
 # ----------  PAGE 1 - FREE AGENTS - ----------#
 # ---------------------------------------------#
 import streamlit as st
-from league import league
-from pages.tables import table_free_agents, table_roster
-from teams import FANTASY_TEAMS
+from src.tables import table_free_agents, table_roster
+from src.league import league
+from src.teams import FANTASY_TEAMS
 
 
 def app():

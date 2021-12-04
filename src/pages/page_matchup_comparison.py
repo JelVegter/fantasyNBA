@@ -2,10 +2,11 @@
 # ------------  PAGE 3 - Matchups -------------#
 # ---------------------------------------------#
 import streamlit as st
-from league import league
-from playergroup import OtherPlayerGroup
-from pages.tables import table_roster
-from teams import FANTASY_TEAMS
+from src.league import league
+from src.playergroup import OtherPlayerGroup
+from src.teams import FANTASY_TEAMS
+from src.tables import table_roster
+
 
 def app():
     # Side bar

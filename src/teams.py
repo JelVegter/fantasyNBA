@@ -1,4 +1,4 @@
-from league import league, MY_TEAM
+from src.league import league, MY_TEAM
 
 team_dictionary = {
     "Atlanta Hawks": "ATL",
