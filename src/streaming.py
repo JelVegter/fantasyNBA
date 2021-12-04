@@ -130,7 +130,7 @@ def retrieve_best_solutions(
     solution_dictionary: dict, number_solutions: int
 ) -> Dict[Tuple[int], float]:
     """Function to find the top x solutions based on points"""
-    best_solutions_dictionary = dict()
+    best_solutions_dictionary = {}
     list_of_solutions = list(solution_dictionary.keys())
     list_of_solution_points = list(solution_dictionary.values())
 
@@ -155,7 +155,7 @@ def streaming_options_results(
     weekdays = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"][CUR_DAY_OF_WEEK:]
     print(f"Possible solutions checked: {legal_solutions_checked}")
 
-    results = dict()
+    results = {}
 
     count = 0
 
@@ -183,7 +183,7 @@ def brute_force(dataframe: DataFrame, max_trades: int):  # -> Dict[tuple, float]
     print("Brute forcing all combinations...")
     columns = ["Player"] + DAY_COLUMNS
     dataframe = dataframe[columns]
-    solution_dictionary = dict()
+    solution_dictionary = {}
     legal_solutions_checked = 0
     indexes = dataframe.index
     combinations = list(combinations_with_replacement(indexes, NUM_DAYS_REMAIN))
