@@ -1,4 +1,7 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
+    "dataworkspace.excludedProjects": [
+        "schema/nba-fantasy/nba-fantasy.sqlproj"
+    ],
 }

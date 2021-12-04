@@ -6,16 +6,18 @@ from league import league
 
 
 def refresh_free_agents(size: int):
-    return league.free_agents(size=size)
+    global FREE_AGENTS
+    FREE_AGENTS = league.free_agents(size=size)
+    print("Refreshed: FREE_AGENTS")
+    return FREE_AGENTS
 
 
-FREE_AGENTS = refresh_free_agents(100)
+FREE_AGENTS = league.free_agents(100)
 
-
-def retrieve_free_agents() -> List[Player]:
-    """Function to retrieve current free agents"""
-    fa_list = list(FREE_AGENTS)
-    return fa_list
+# def retrieve_free_agents() -> List[Player]:
+#     """Function to retrieve current free agents"""
+#     fa_list = list(FREE_AGENTS)
+#     return fa_list
 
 
 def calculate_points(points: dict):
@@ -79,10 +81,10 @@ def score_weights():
 
 def player_scores(players: List[Player], weights: dict) -> DataFrame:
     """Function to calculate scores for some players"""
-    scores_dict = dict()
+    scores_dict = {}
     for fa in players:
         stats_dict = fa.stats
-        temp_dict = dict()
+        temp_dict = {}
         for period, scores in stats_dict.items():
             for avg_total, scores_ in scores.items():
                 try:
@@ -139,6 +141,7 @@ def retrieve_player_data(players: List[Player]) -> DataFrame:
 def main():
     """Main function for testing"""
     # print(retrieve_free_agents())
+    FREE_AGENTS = refresh_free_agents(100)
     players = league.teams[2].roster
     print(retrieve_player_data(players))
 

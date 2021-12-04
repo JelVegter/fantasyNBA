@@ -131,12 +131,14 @@ def parse_html_tables(
     html: str, date, home_team_ab: str, away_team_ab: str
 ) -> pd.DataFrame:
     away_team = pd.read_html(html)[0]
+    away_team["Team"] = away_team_ab
     away_team["Opponent"] = home_team_ab
     minutes_played = away_team[("Basic Box Score Stats", "MP")].iloc[-1]
     minutes_played = int(minutes_played)
     nr_overtimes = (minutes_played - 240) / 25
     table_html_index = int(8 + nr_overtimes)
     home_team = pd.read_html(html)[table_html_index]
+    home_team["Team"] = home_team_ab
     home_team["Opponent"] = away_team_ab
     stats = pd.concat([away_team, home_team])
     stats["GameDay"] = date
@@ -180,6 +182,7 @@ def clean_all_stats(all_stats: pd.DataFrame) -> pd.DataFrame:
         "PF",
         "PTS",
         "+/-",
+        "Team",
         "Opponent",
         "GameDay",
     ]
@@ -315,8 +318,8 @@ def calculate_points(
 
 
 def calculate_points_against_teams(stats: DataFrame, refresh: bool = True) -> DataFrame:
+    stats = stats[["Opponent", "Points", "GameDay"]]
     stats = stats.rename(columns={"Opponent": "Team"})
-    stats = stats[["Team", "Points", "GameDay"]]
     points_against_per_day = stats.groupby(by=["Team", "GameDay"], as_index=False).sum()
     mean_points_against = (
         points_against_per_day[["Team", "Points"]].groupby(by="Team").mean()
@@ -335,7 +338,7 @@ def refresh_data():
 
 
 def main() -> None:
-    data = get_dataframe(refresh=True)
+    data = get_dataframe(refresh=False)
     data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
     team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
     print(team_point_amplifiers.sort_values(by="Amplifier"))

@@ -6,6 +6,7 @@ from league import league
 from pages.tables import table_free_agents, table_roster
 from teams import FANTASY_TEAMS
 
+
 def app():
     # Side bar
     with st.sidebar:

@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict
 from collections import Counter
 from pandas import DataFrame, concat
 from playergroup import FreeAgentPlayerGroup
-from players import FREE_AGENTS, retrieve_player_data
+from players import retrieve_player_data, FREE_AGENTS
 from schedule import Schedule, NOW
 
 SCHEDULE = Schedule(2022)
@@ -24,7 +24,7 @@ def determine_day_range(week: str = "This Week") -> None:
 
 def build_dataframe(week: str) -> DataFrame:
     """Function to build dataframe with free agents, points, and gamedays"""
-    free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
+    free_agents = FreeAgentPlayerGroup(FREE_AGENTS)
     stats = retrieve_player_data(free_agents.players)
     stats = stats[["Player", "Team", "Status", "Score"]].loc[stats["Status"] != "OUT"]
     daily_schedule = SCHEDULE.teams_playing_per_day(week=week, pretty=False)
