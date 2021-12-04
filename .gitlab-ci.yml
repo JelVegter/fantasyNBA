@@ -37,7 +37,7 @@ test:
 #     # - pip install tox flake8  # you can also use tox
 #     # - tox -e py36,flake8
     - pip install pylint
-    - pylint --disable=missing-docstring --disable=invalid-name --disable=no-name-in-module --disable=import-error src/
+    - pylint --fail-under=8.5 --disable=missing-docstring --disable=invalid-name --disable=no-name-in-module --disable=import-error src/
 
 # run:
 #   script:
