@@ -149,7 +149,6 @@ def retrieve_best_solutions(
 def streaming_options_results(
     dataframe: DataFrame,
     best_solution_players_dictionary: Dict[tuple, float],
-    week: str,
     legal_solutions_checked: int,
 ):
     """Function to print the best streaming options"""
@@ -160,7 +159,7 @@ def streaming_options_results(
 
     count = 0
 
-    for solution, points in best_solution_players_dictionary.items():
+    for solution in best_solution_players_dictionary.keys():
         streaming_solution = DataFrame()
         # Find the names of players based on their index
         solution_players: List[str] = [
@@ -196,7 +195,7 @@ def streaming_options_results(
 def brute_force(
     dataframe: DataFrame, max_trades: int, week: str
 ):  # -> Dict[tuple, float]
-    print(f"Brute forcing all combinations...")
+    print("Brute forcing all combinations...")
     columns = ["Player"] + DAY_COLUMNS
     dataframe = dataframe[columns]
     solution_dictionary = dict()
@@ -236,8 +235,8 @@ def prep_dataframe(max_slots: int, week: str):
 
 def find_optimal_solution(max_slots: int, max_trades: int, week: str):
     dataframe = prep_dataframe(max_slots, week)
-    bf = brute_force(dataframe, max_trades, week)
-    return bf
+    solutions = brute_force(dataframe, max_trades, week)
+    return solutions
 
 
 # def find_optimal_solution(max_slots: int, max_trades: int, week: str):

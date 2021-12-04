@@ -1,6 +1,6 @@
 from typing import List
-import psycopg2
 import os
+import psycopg2
 
 
 class Connection:
@@ -42,7 +42,7 @@ class Connection:
             col_name, data_type, null = column
             cols_to_add.append(f"{col_name} {data_types[data_type]} {null}")
         base_query = f"CREATE TABLE IF NOT EXISTS {schema}{table_name} ("
-        query = base_query + ",".join([col for col in cols_to_add]) + ")"
+        query = base_query + ",".join(cols_to_add) + ")"
         self.cursor.execute(query)
         self.cursor.close()
         self.cnxn.commit()

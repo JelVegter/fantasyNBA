@@ -10,8 +10,8 @@ def extract_player_stats():
     with psycopg2.connect(database="nba", user="user", password="pass") as conn:
         cursor = conn.cursor()
         cursor.execute(query)
-        data = read_sql(query, conn, index_col="id")
-    return data
+        stats = read_sql(query, conn, index_col="id")
+    return stats
 
 
 def calc_expanding(stats: DataFrame) -> DataFrame:
@@ -31,16 +31,16 @@ def calc_rolling(
 ) -> DataFrame:
     stats = stats.sort_index()
     for window in windows:
-        dir = "Bckw"
+        direction = "Bckw"
         if forward is True:
             stats = stats.sort_index(ascending=False)
-            dir = "Fwrd"
-        rolling_period = f"Roll{dir}{window}"
+            direction = "Fwrd"
+        rolling_period = f"Roll{direction}{window}"
 
         if forward is True:
             rolling = DataFrame()
-            for p in stats["player"].unique():
-                temp_stats = stats.loc[stats["player"] == p]
+            for player in stats["player"].unique():
+                temp_stats = stats.loc[stats["player"] == player]
                 temp_stats = (
                     temp_stats[["player", "date", "points"]]
                     .shift(1)

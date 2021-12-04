@@ -82,8 +82,8 @@ def score_weights():
 def player_scores(players: List[Player], weights: dict) -> DataFrame:
     """Function to calculate scores for some players"""
     scores_dict = {}
-    for fa in players:
-        stats_dict = fa.stats
+    for free_agent in players:
+        stats_dict = free_agent.stats
         temp_dict = {}
         for period, scores in stats_dict.items():
             for avg_total, scores_ in scores.items():
@@ -92,7 +92,7 @@ def player_scores(players: List[Player], weights: dict) -> DataFrame:
                     temp_dict[period + "." + avg_total] = calculate_points(scores_)
                 except:
                     pass
-        scores_dict[fa.name] = temp_dict
+        scores_dict[free_agent.name] = temp_dict
     scores = DataFrame.from_dict(scores_dict, orient="index")
     scores.reset_index(inplace=True, drop=False)
     scores = scores.rename(columns={"index": "Player"})

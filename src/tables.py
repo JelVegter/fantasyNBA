@@ -1,8 +1,8 @@
+from pandas import DataFrame
 from src.playergroup import OtherPlayerGroup, FreeAgentPlayerGroup
 from src.players import FREE_AGENTS
 from src.teams import TEAMS
 from src.schedule import Schedule
-from pandas import DataFrame
 
 
 def build_free_agents(FREE_AGENTS):

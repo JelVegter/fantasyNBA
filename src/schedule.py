@@ -1,9 +1,9 @@
 """Module containing functions and a class relating to scheduling related information"""
 from typing import List
 import datetime as dt
+from timeit import default_timer
 import asyncio
 import aiohttp
-from timeit import default_timer
 from pandas import (
     DataFrame,
     Timestamp,
@@ -50,7 +50,7 @@ class Schedule:
                 week_of_games = 1
             else:
                 week_of_games += 1
-        games = teams_games_per_day(schedule=schedule, week=week_of_games, sort=sort)
+        games = teams_games_per_day(schedule=schedule, week=week_of_games)
         if pretty is True:
             weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
@@ -135,7 +135,7 @@ def convert_timestamp_to_datetime(timestamp: Timestamp):
     return to_datetime(timestamp)
 
 
-def teams_games_per_day(schedule: DataFrame, week: int, sort="Total") -> DataFrame:
+def teams_games_per_day(schedule: DataFrame, week: int) -> DataFrame:
     """Function to create a per-day overview of which teams are playing"""
     today_day_of_week = NOW.dayofweek
     schedule = schedule.loc[schedule["Date"] >= NOW]
