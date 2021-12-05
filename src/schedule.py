@@ -63,18 +63,19 @@ class Schedule:
         return games
 
 
-def retrieve_amplifier_ratio(amplifiers: DataFrame, team: str):
+def retrieve_amplifier_ratio(amplifiers: DataFrame, team: str, visitor: bool):
     if team == "PHL":
         team = "PHI"
     elif team == "BKN":
         team = "BRK"
     elif team == "CHA":
         team = "CHO"
-    amplifier = amplifiers.loc[team, "Amplifier"]
+    amplifier = amplifiers.loc[team, "AmpHome"]
+    if visitor:
+        amplifier = amplifiers.loc[team, "AmpAway"]
     return amplifier
 
 
-@time_func
 def schedule_builder(year: int, months: list) -> DataFrame:
     """Function to create the NBA schedule by scraping data from basketball-reference.com"""
     base_url = "https://www.basketball-reference.com/leagues/NBA_{}_games-{}.html"
@@ -89,15 +90,14 @@ def schedule_builder(year: int, months: list) -> DataFrame:
         tz="US/Eastern"
     )
     games["Week"] = games["Date"].dt.isocalendar().week
-    # games = games.loc[games["Week"] >= CURRENT_WEEK]
     games["Visitor/Neutral"] = games["Visitor/Neutral"].map(abbreviate_team)
     games["Home/Neutral"] = games["Home/Neutral"].map(abbreviate_team)
     amplifier = read_csv("data/team_point_amplifiers.csv", index_col="Team")
     games["Visitor_amp"] = games["Visitor/Neutral"].apply(
-        lambda x: retrieve_amplifier_ratio(amplifier, x)
+        lambda x: retrieve_amplifier_ratio(amplifier, x, visitor=True)
     )
     games["Home_amp"] = games["Home/Neutral"].apply(
-        lambda x: retrieve_amplifier_ratio(amplifier, x)
+        lambda x: retrieve_amplifier_ratio(amplifier, x, visitor=False)
     )
     return games
 
@@ -165,7 +165,6 @@ def team_games_week_count(team: str, schedule: DataFrame, week: int, date):
         lambda x: calculate_total_amplifier_ratio(x, team),
         axis=1,
     )
-    # return schedule.count()[0]
     return schedule.count()[0], schedule["Calculated_amp"].sum()
 
 
@@ -230,9 +229,9 @@ def main() -> None:
     # pprint(retrieve_schedule())
     # retrieve_schedule()
     # test_func()
-    # results = schedule_builder(year=2022, months=["october"])
+    results = schedule_builder(year=2022, months=["october"])
     print(SCHEDULE.schedule)
-    # print(results)
+    print(results)
 
 
 if __name__ == "__main__":

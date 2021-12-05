@@ -27,7 +27,7 @@ def app():
     else:
         PERIOD = "Pot.NextWeek"
 
-    INJURED_PLAYERS = bool(INJURED_PLAYERS == "hide")
+    INJURED_PLAYERS = bool(INJURED_PLAYERS == "Hide")
 
     SELECTED_TEAM_1 = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR_1][0]
     SELECTED_TEAM_2 = [t for t in league.teams if t.team_name in SELECTED_TEAM_STR_2][0]
