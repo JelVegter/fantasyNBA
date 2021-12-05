@@ -70,9 +70,9 @@ def retrieve_amplifier_ratio(amplifiers: DataFrame, team: str, visitor: bool):
         team = "BRK"
     elif team == "CHA":
         team = "CHO"
-    amplifier = amplifiers.loc[team, "HomeAmp"]
+    amplifier = amplifiers.loc[team, "AmpHome"]
     if visitor:
-        amplifier = amplifiers.loc[team, "VisitorAmp"]
+        amplifier = amplifiers.loc[team, "AmpAway"]
     return amplifier
 
 
