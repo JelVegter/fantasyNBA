@@ -5,7 +5,7 @@ from dateutil import parser
 import pandas as pd
 from numpy import nan
 from pandas.core.frame import DataFrame
-from nba_utils import fetch_api_data
+from src.nba_utils import fetch_api_data
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
