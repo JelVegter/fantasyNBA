@@ -53,3 +53,21 @@ test:
 sast:
   stage: test
 
+
+
+## Google cloud
+services:
+  - docker:dind
+variables:
+  DOCKER_DRIVER: overlay
+stages:
+  - update_mirror
+google_source:
+  image: google/cloud-sdk
+  stage: update_mirror
+  script:
+  - echo "$GOOGLE_KEY" > key.json
+  - gcloud auth activate-service-account --key-file key.json
+  - git config --global credential.'https://source.developers.google.com'.helper gcloud.sh
+  - git remote add google https://source.developers.google.com:2022/p/jelle-streamlit-fantasy-nba/r/g-fantasy-nba
+  - git push -f google master
