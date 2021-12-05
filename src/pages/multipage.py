@@ -1,5 +1,6 @@
 import streamlit as st
 from src.players import refresh_free_agents
+from src.full_player_stats import refresh_amp_data
 
 # Define the multipage class to manage the multiple apps in our program
 class MultiPage:
@@ -22,7 +23,9 @@ class MultiPage:
 
     def run(self):
         # Drodown to select the page to run
-        if st.button(label="Refresh Data"):
+        if st.button(label="Refresh Amplifiers"):
+            refresh_amp_data()
+        if st.button(label="Refresh Free Agents"):
             global FREE_AGENTS
             FREE_AGENTS = refresh_free_agents(100)
         page = st.sidebar.selectbox(

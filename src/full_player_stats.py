@@ -1,12 +1,11 @@
 from datetime import datetime
-from pprint import pprint
 from typing import List
 import asyncio
 from dateutil import parser
 import pandas as pd
 from numpy import nan
 from pandas.core.frame import DataFrame
-from nba_utils import fetch_api_data, time_func
+from nba_utils import fetch_api_data
 
 try:
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -105,6 +104,7 @@ def parse_html_tables(
     away_team = pd.read_html(html)[0]
     away_team["Team"] = away_team_ab
     away_team["Opponent"] = home_team_ab
+    away_team["Home/Away"] = "away"
     minutes_played = away_team[("Basic Box Score Stats", "MP")].iloc[-1]
     minutes_played = int(minutes_played)
     nr_overtimes = (minutes_played - 240) / 25
@@ -112,12 +112,12 @@ def parse_html_tables(
     home_team = pd.read_html(html)[table_html_index]
     home_team["Team"] = home_team_ab
     home_team["Opponent"] = away_team_ab
+    home_team["Home/Away"] = "home"
     stats = pd.concat([away_team, home_team])
     stats["GameDay"] = date
     return stats
 
 
-@time_func
 def get_all_stats(months: List[str]) -> pd.DataFrame:
     print("Getting all stats...")
     played_games = fetch_played_games(months)
@@ -156,6 +156,7 @@ def clean_all_stats(all_stats: pd.DataFrame) -> pd.DataFrame:
         "+/-",
         "Team",
         "Opponent",
+        "Home/Away",
         "GameDay",
     ]
 
@@ -192,8 +193,6 @@ def clean_all_stats(all_stats: pd.DataFrame) -> pd.DataFrame:
     all_stats[numeric_cols] = all_stats[numeric_cols].apply(
         pd.to_numeric, errors="coerce"
     )
-
-    # Convert date format
     all_stats["GameDay"] = all_stats["GameDay"].apply(convert_date, hyphens=True)
     return all_stats
 
@@ -289,36 +288,49 @@ def calculate_points(
     return stats
 
 
-def calculate_points_against_teams(stats: DataFrame, refresh: bool = True) -> DataFrame:
-    stats = stats[["Opponent", "Points", "GameDay"]]
+def calculate_points_against_teams(stats: DataFrame) -> DataFrame:
+    stats = stats[["Opponent", "Home/Away", "Points", "GameDay"]]
     stats = stats.rename(columns={"Opponent": "Team"})
-    points_against_per_day = stats.groupby(by=["Team", "GameDay"], as_index=False).sum()
+    points_against_per_day = stats.groupby(
+        by=["Team", "Home/Away", "GameDay"], as_index=False
+    ).sum()
+    game_counter = points_against_per_day["GameDay"].count()
     mean_points_against = (
-        points_against_per_day[["Team", "Points"]].groupby(by="Team").mean()
-    )
+        points_against_per_day[["Team", "Home/Away", "Points"]]
+        .groupby(by=["Team", "Home/Away"])
+        .mean()
+    ).reset_index()
     avg = mean_points_against["Points"].mean()
     mean_points_against["Amplifier"] = mean_points_against["Points"] / avg
-    if refresh:
-        mean_points_against.to_csv("data/team_point_amplifiers.csv")
+    mean_points_against["AmpHome"] = mean_points_against.apply(
+        lambda x: x["Amplifier"] if x["Home/Away"] == "home" else None, axis=1
+    )
+    mean_points_against["AmpAway"] = mean_points_against.apply(
+        lambda x: x["Amplifier"] if x["Home/Away"] == "away" else None, axis=1
+    )
+    mean_points_against = (
+        mean_points_against[["Team", "AmpHome", "AmpAway"]].groupby(by="Team").max()
+    )
+    if game_counter < 300:
+        mean_points_against["AmpHome"] = 1
+        mean_points_against["AmpVisitor"] = 1
     return mean_points_against
 
 
-def refresh_data():
+def refresh_amp_data():
     data = get_dataframe(refresh=True)
     data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
-    team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
+    team_point_amplifiers = calculate_points_against_teams(data)
+    team_point_amplifiers.to_csv("data/team_point_amplifiers.csv")
     return team_point_amplifiers
 
 
 def main() -> None:
-    data = get_dataframe(refresh=False)
-    data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
-    team_point_amplifiers = calculate_points_against_teams(data, refresh=True)
-    print(team_point_amplifiers.sort_values(by="Amplifier"))
-    pprint(data.loc[data["Player"] == "Joe Harris"])
-    # responses = get_all_stats(["november"])
-    # print(responses)
-    # print(data.columns)
+    # data = get_dataframe(refresh=False)
+    # data = calculate_points(data, roll_backwards=[2, 4], roll_forward=[1, 3])
+    # team_point_amplifiers = calculate_points_against_teams(data)
+
+    refresh_amp_data()
 
 
 if __name__ == "__main__":
