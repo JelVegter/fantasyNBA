@@ -6,8 +6,8 @@
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
 image: python:latest
-include:
-- template: Security/SAST.gitlab-ci.yml
+# include:
+# - template: Security/SAST.gitlab-ci.yml
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
@@ -48,10 +48,10 @@ test:
 #   artifacts:
 #     paths:
 #       - dist/*.whl
-
-
-sast:
-  stage: test
+#
+#
+# sast:
+#   stage: test
 
 
 
