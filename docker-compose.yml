@@ -2,7 +2,7 @@ version: "3.9" # optional since v1.27.0
 services:
   python:
     build: .
-    container_name: fantasyNBA
+    container_name: app
     ports:
       - "8501:8501"
     volumes:
@@ -24,3 +24,7 @@ services:
     restart: always
     ports:
       - "6080:8080"
+
+#
+#       docker build -t eu.gcr.io/jelle-streamlit-fantasy-nba/app .
+#       docker push eu.gcr.io/jelle-streamlit-fantasy-nba/app

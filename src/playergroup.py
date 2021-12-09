@@ -93,7 +93,7 @@ class FreeAgentPlayerGroup(PlayerGroup):
         """Method to print free agents based on certain parameters"""
         pprint(
             PlayerGroup.retrieve_stats(self, sort=sort, hide_injured=hide_injured).head(
-                50
+                100
             )
         )
 
