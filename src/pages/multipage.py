@@ -27,7 +27,7 @@ class MultiPage:
             refresh_amp_data()
         if st.button(label="Refresh Free Agents"):
             global FREE_AGENTS
-            FREE_AGENTS = refresh_free_agents(100)
+            FREE_AGENTS = refresh_free_agents(size=500)
         page = st.sidebar.selectbox(
             "App Navigation", self.pages, format_func=lambda page: page["title"]
         )

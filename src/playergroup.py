@@ -93,7 +93,7 @@ class FreeAgentPlayerGroup(PlayerGroup):
         """Method to print free agents based on certain parameters"""
         pprint(
             PlayerGroup.retrieve_stats(self, sort=sort, hide_injured=hide_injured).head(
-                50
+                500
             )
         )
 
@@ -119,6 +119,8 @@ def main():
     # other_roster.suggest_trades()
 
     # Test FreeAgentPlayerGroup Child Class
+    FREE_AGENTS = league.free_agents(size=333)
+    print(len(FREE_AGENTS))
     free_agents = FreeAgentPlayerGroup(players=FREE_AGENTS)
     free_agents.show_free_agents(sort="Score", hide_injured=False)
 

@@ -12,7 +12,7 @@ def refresh_free_agents(size: int):
     return FREE_AGENTS
 
 
-FREE_AGENTS = league.free_agents(100)
+FREE_AGENTS = league.free_agents(size=500)
 
 # def retrieve_free_agents() -> List[Player]:
 #     """Function to retrieve current free agents"""
@@ -141,7 +141,7 @@ def retrieve_player_data(players: List[Player]) -> DataFrame:
 def main():
     """Main function for testing"""
     # print(retrieve_free_agents())
-    FREE_AGENTS = refresh_free_agents(100)
+    FREE_AGENTS = refresh_free_agents(500)
     players = league.teams[2].roster
     print(retrieve_player_data(players))
 

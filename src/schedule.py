@@ -22,7 +22,7 @@ except:
 
 NOW = Timestamp(dt.datetime.now(), unit="s", tz="US/Eastern").normalize()
 CURRENT_WEEK = NOW.isocalendar()[1]
-MONTHS = ["october", "november", "december"]
+MONTHS = ["october", "november", "december", "january", "february"]
 
 
 class Schedule:
@@ -81,6 +81,7 @@ def schedule_builder(year: int, months: list) -> DataFrame:
     base_url = "https://www.basketball-reference.com/leagues/NBA_{}_games-{}.html"
     urls = [base_url.format(year, month) for month in months]
     responses = asyncio.run(fetch_api_data(urls))
+    print([url for url in urls])
     data = [read_html(r)[0] for r in responses]
     games = concat(data)
 

@@ -29,3 +29,11 @@ def test_teams_games_per_day(x, y, value):
     assert games.shape[0] == 30
     assert games.shape[1] == 10
     assert games.iloc[x, y] == value
+
+
+if __name__ == "__main__":
+    # SCHEDULE = Schedule(2022)
+    # print(SCHEDULE.schedule)
+    year = 2022
+    MONTHS = ["october", "november", "december", "january", "february"]
+    schedule_builder(year, MONTHS)
