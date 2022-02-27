@@ -34,6 +34,7 @@ class Schedule:
         week: str = "This Week",
         sort: str = "Total",
         pretty: bool = True,
+        test: bool = False,
     ) -> DataFrame:
         """Method to print the schedule in a daily view"""
         schedule = self.schedule
@@ -43,7 +44,7 @@ class Schedule:
                 week_of_games = 1
             else:
                 week_of_games += 1
-        games = teams_games_per_day(schedule=schedule, week=week_of_games)
+        games = teams_games_per_day(schedule=schedule, week=week_of_games, test=test)
         if pretty is True:
             weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             games.columns = weekdays + ["Total", "Today", "Next3Days"]
@@ -98,10 +99,13 @@ def convert_timestamp_to_datetime(timestamp: Timestamp):
     return to_datetime(timestamp)
 
 
-def teams_games_per_day(schedule: DataFrame, week: int) -> DataFrame:
+def teams_games_per_day(schedule: DataFrame, week: int, test: bool = False) -> DataFrame:
     """Function to create a per-day overview of which teams are playing"""
     today_day_of_week = NOW.dayofweek
-    # schedule = schedule.loc[schedule["Date"] >= NOW] # removed as it ruins pytest on past weeks
+    if not test:
+        schedule = schedule.loc[
+            schedule["Date"] >= NOW
+        ]  # removed as it ruins pytest on past weeks
     schedule = schedule.loc[schedule["Week"] == week]
     schedule["DateTime"] = schedule["Date"].map(convert_timestamp_to_datetime)
     schedule["DayOfWeek"] = schedule["DateTime"].dt.dayofweek

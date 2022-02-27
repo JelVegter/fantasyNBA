@@ -194,7 +194,7 @@ def brute_force(dataframe: DataFrame, max_trades: int):  # -> Dict[tuple, float]
             for day, player_index in zip(DAY_COLUMNS, combo):
                 points += dataframe.loc[player_index, day]
                 # Dictionary containing all legal solutions and their points
-                solution_dictionary[combo] = (points)
+                solution_dictionary[combo] = points
 
     best_solution_dictionary = retrieve_best_solutions(solution_dictionary, 5)
     solutions = streaming_options_results(
