@@ -66,7 +66,7 @@ def calculate_weighted_score(weights: dict, scores: DataFrame) -> float:
             weight_counter += value
     try:
         return round(score_counter / weight_counter, 2)
-    except ValueError:
+    except:
         return 0.00
 
 

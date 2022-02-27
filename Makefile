@@ -1,9 +1,10 @@
 .DEFAULT: help
 help:
-	@echo "make venv"
-	@echo "       installs virtualenv and creates an environment venv"
 	@echo "make setup"
-	@echo "       installs requirements.txt and setup.py packages into the virtualenv"
+	@echo "	1. installs virtualenv"
+	@echo "	2. creates venv"
+	@echo "	3. installs requirements.txt"
+	@echo "	4. installs setup.py packages"
 	@echo "make pytest"
 	@echo "       run tests"
 	@echo "make lint"
@@ -17,28 +18,24 @@ help:
 	@echo "make help"
 	@echo "       print help"
 
-venv:
-	pip install virtualenv
-	pip install --upgrade virtualenv
-	python -m virtualenv venv
-
 setup: requirements.txt setup.py
+	pip install virtualenv==20.13.2
+	python -m virtualenv venv
 	(	\
 		source venv/bin/activate; \
 		pip install -e .; \
 		pip install -r requirements.txt \
 	)
 
-rm_dep: venv
-	pip install pipdeptree
-	rm requirements.txt
-	pipdeptree -f --warn silence | grep -E '^[a-zA-Z0-9\-]+' > requirements.txt
+rmdep:
+	pip install pipdeptree; \
+	pipdeptree -f --warn silence | grep -E '^[a-zA-Z0-9\-]+' > requirements.txt; \
 
 pytest:
 	python -m pytest
 
 lint:
-	python -m pylint fantasy_nba/*.py
+	python -m pylint --errors-only fantasy_nba/*.py
 
 format:
 	python -m isort .
@@ -50,10 +47,12 @@ dup:
 dbuild:
 	docker-compose up --build
 
-clean:
-	rm -rf venv
-	find . -type f -name *.pyc -delete
-	find . -type d -name __pycache__ -delete
+ddown:
+	docker-compose down
 
-activate:
+clean:
+	(find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf)
+	rm -rf venv
+	
+active:
 	source venv/bin/activate
