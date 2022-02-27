@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
-from full_player_stats import get_dataframe, calculate_points
 import xgboost as xgb
+from full_player_stats import calculate_points, get_dataframe
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-
 
 ind_variables = [
     # 'FGM', 'FGA', 'FG%', '3PTM', '3PA', '3P%', 'FTM', 'FTA', 'Points',
@@ -30,9 +29,7 @@ data_dmatrix = xgb.DMatrix(data=X, label=y)
 #
 
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=123
-)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
 
 xg_reg = xgb.XGBRegressor(
     objective="reg:squarederror",
