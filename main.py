@@ -1,11 +1,12 @@
 import streamlit as st
-from src.pages.multipage import MultiPage
-from src.pages import (
+
+from fantasy_nba.pages import (
     page_free_agents,
-    page_schedule,
     page_matchup_comparison,
+    page_schedule,
     page_streaming,
 )
+from fantasy_nba.pages.multipage import MultiPage
 
 
 def main():

@@ -1,6 +1,5 @@
 import psycopg2
 
-
 table_game_schedule = """
 CREATE TABLE GameSchedule (
     Id INT NOT NULL PRIMARY KEY,

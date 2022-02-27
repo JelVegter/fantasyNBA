@@ -1,11 +1,8 @@
-from src.players import (
-    player_scores,
-    player_info,
-    retrieve_player_data,
-    calculate_points,
-)
-from test.mock_objects import MOCK_TEAM, MOCK_PLAYER1, MOCK_PLAYER2
+from test.mock_objects import MOCK_PLAYER1, MOCK_PLAYER2, MOCK_TEAM
+
 import pytest
+
+from fantasy_nba.players import calculate_points, player_info, player_scores, retrieve_player_data
 
 
 @pytest.mark.parametrize(

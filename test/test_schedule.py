@@ -1,6 +1,7 @@
-from src.schedule import Schedule, schedule_builder, teams_games_per_day
-from pandas import DataFrame
 import pytest
+from pandas import DataFrame
+
+from fantasy_nba.schedule import Schedule, schedule_builder, teams_games_per_day
 
 
 def test_Schedule_teams_playing_per_day():
