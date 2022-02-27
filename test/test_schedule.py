@@ -6,7 +6,7 @@ from fantasy_nba.schedule import Schedule, schedule_builder, teams_games_per_day
 
 def test_Schedule_teams_playing_per_day():
     SCHEDULE = Schedule(2022)
-    teams_playing_per_day = SCHEDULE.teams_playing_per_day()
+    teams_playing_per_day = SCHEDULE.teams_playing_per_day(test=True)
     assert teams_playing_per_day.shape[0] == 30
     assert teams_playing_per_day.shape[1] == 10
     assert teams_playing_per_day["Sun"].sort_values()[-1] != ""
@@ -24,7 +24,7 @@ def test_schedule_builder():
 )
 def test_teams_games_per_day(x, y, value):
     SCHEDULE = Schedule(2022)
-    games = teams_games_per_day(schedule=SCHEDULE.schedule, week=48)
+    games = teams_games_per_day(schedule=SCHEDULE.schedule, week=48, test=True)
     print(games)
     assert isinstance(games, DataFrame)
     assert games.shape[0] == 30

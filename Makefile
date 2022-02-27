@@ -1,13 +1,13 @@
 .DEFAULT: help
 help:
-	@echo "make install"
-	@echo "       install all the dependencies specified in pyproject.toml and poetry.lock"
-	@echo "make build"
-	@echo "       packages the application in wheel format"
+	@echo "make venv"
+	@echo "       installs virtualenv and creates an environment venv"
+	@echo "make setup"
+	@echo "       installs requirements.txt and setup.py packages into the virtualenv"
 	@echo "make pytest"
 	@echo "       run tests"
 	@echo "make lint"
-	@echo "       run pylint
+	@echo "       run pylint"
 	@echo "make format"
 	@echo "       run isort and black"
 	@echo "make dup"
@@ -20,13 +20,14 @@ help:
 venv:
 	pip install virtualenv
 	pip install --upgrade virtualenv
-	cd venv/bin
-	. activate
-	# python -m virtualenv venv
+	python -m virtualenv venv
 
-setup: requirements.txt
-	source venv/bin/activate
-	pip install -r requirements.txt
+setup: requirements.txt setup.py
+	(	\
+		source venv/bin/activate; \
+		pip install -e .; \
+		pip install -r requirements.txt \
+	)
 
 rm_dep: venv
 	pip install pipdeptree

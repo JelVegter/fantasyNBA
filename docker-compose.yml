@@ -1,12 +1,12 @@
-version: "3.9" # optional since v1.27.0
+version: "3.10"
 services:
   python:
     build: .
-    container_name: fantasyNBA
+    container_name: fantasy_nba
     ports:
       - "8501:8501"
     volumes:
-      - .:/fantasyNBA
+      - .:/fantasy_nba
 
   db:
     image: postgres
